@@ -398,7 +398,7 @@
 </head>
 <body>
     <!-- Login overlay (requires local login before using the form) -->
-    <div id="loginOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:2000;">
+    <div id="loginOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:2000;">
         <div style="background:white;padding:24px;border-radius:12px;min-width:320px;direction:rtl;text-align:right;">
             <h3 style="margin-bottom:10px;">ورود کاربران</h3>
             <p style="font-size:0.9em;color:#555;margin-bottom:12px;">لطفاً با نام کاربری و رمز عبور وارد شوید</p>
@@ -407,7 +407,7 @@
             <div style="display:flex;gap:8px;justify-content:flex-end;">
                 <button id="loginBtn" style="background:#2196f3;color:white;padding:8px 14px;border:none;border-radius:6px;">ورود</button>
             </div>
-            <p style="font-size:0.85em;color:#888;margin-top:10px;">کاربر پیش‌فرض: <strong>draghajanidelavar</strong> / رمز: <strong>admin</strong></p>
+            <!-- default credentials removed from UI for security -->
         </div>
     </div>
     <div class="container">
@@ -432,26 +432,10 @@
             </div>
         </div>
 
-        <!-- GitHub Authentication Section -->
-        <div class="auth-notice" id="authNotice">
-            ℹ️ برای ذخیره خودکار در GitHub، <strong>Token API</strong> را وارد کنید
-        </div>
-
-        <div class="auth-section" id="authSection">
-            <h3>🔐 تنظیم GitHub Token</h3>
-            <p style="margin-bottom: 15px; font-size: 0.9em; color: #555;">
-                برای ذخیره داده‌ها در ریپوزیتوری GitHub، یک Personal Access Token درست کنید:
-                <a href="https://github.com/settings/tokens" target="_blank" style="color: #2196f3;">
-                    github.com/settings/tokens
-                </a>
-            </p>
-            <input type="password" id="githubToken" placeholder="GitHub Personal Access Token" />
-            <button onclick="setGitHubToken()">✓ تأیید Token</button>
-            <button onclick="toggleAuthSection()" style="background: #e0e0e0; color: #333; margin-right: 10px;">✕ بستن</button>
-        </div>
+        <!-- GitHub token UI removed: app will read token from browser localStorage if present -->
 
         <div class="info-message">
-            ℹ️ برای ذخیره فایل: <strong>Ctrl+Enter</strong> | برای پاک کردن: <strong>Ctrl+R</strong> | برای تنظیم GitHub: <strong>Ctrl+G</strong>
+            ℹ️ برای ذخیره فایل: <strong>Ctrl+Enter</strong> | برای پاک کردن: <strong>Ctrl+R</strong>
         </div>
 
         <form id="mainForm" class="form-container">
@@ -768,38 +752,16 @@
             const progress = Math.min((stateManager.getRecordCount() / 100) * 100, 100);
             document.getElementById('progressFill').style.width = progress + '%';
             
-            // Update GitHub status
+            // Update GitHub status (silent — no UI prompt)
             if (githubManager && githubManager.isAuthenticated) {
                 document.getElementById('githubStatus').className = 'github-status connected';
                 document.getElementById('githubStatus').textContent = '☁️ متصل به GitHub';
-                document.getElementById('authNotice').classList.remove('show');
             } else {
                 document.getElementById('githubStatus').className = 'github-status local';
                 document.getElementById('githubStatus').textContent = '📦 حالت محلی';
-                document.getElementById('authNotice').classList.add('show');
             }
         }
-
-        // GitHub Token management
-        function toggleAuthSection() {
-            const section = document.getElementById('authSection');
-            section.classList.toggle('show');
-        }
-
-        function setGitHubToken() {
-            const token = document.getElementById('githubToken').value.trim();
-            if (!token) {
-                alert('لطفاً Token را وارد کنید');
-                return;
-            }
-            localStorage.setItem('github_token', token);
-            GITHUB_CONFIG.GITHUB_TOKEN = token;
-            initGitHubManager();
-            updateUI();
-            document.getElementById('authSection').classList.remove('show');
-            document.getElementById('githubToken').value = '';
-            alert('✓ Token ثبت شد!');
-        }
+        
 
         // --- Simple local login ---
         const DEFAULT_USER = 'draghajanidelavar';
