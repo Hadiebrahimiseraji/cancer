@@ -1,0 +1,24 @@
+{
+  "name": "cancer-patient-questionnaire",
+  "version": "1.0.0",
+  "description": "سیستم پرسشنامه سرطان و حفظ باروری - Cancer Patient Questionnaire System",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx live-server",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "echo 'Deploy to GitHub Pages via gh-pages branch'"
+  },
+  "keywords": [
+    "cancer",
+    "questionnaire",
+    "patient",
+    "fertility",
+    "iran"
+  ],
+  "author": "Medical Institution",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/medpromx/cancer.git"
+  }
+}
