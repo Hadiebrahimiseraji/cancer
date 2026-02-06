@@ -397,6 +397,19 @@
     </style>
 </head>
 <body>
+    <!-- Login overlay (requires local login before using the form) -->
+    <div id="loginOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:white;padding:24px;border-radius:12px;min-width:320px;direction:rtl;text-align:right;">
+            <h3 style="margin-bottom:10px;">ورود کاربران</h3>
+            <p style="font-size:0.9em;color:#555;margin-bottom:12px;">لطفاً با نام کاربری و رمز عبور وارد شوید</p>
+            <input id="loginUser" placeholder="نام کاربری" style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;">
+            <input id="loginPass" type="password" placeholder="رمز عبور" style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;">
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button id="loginBtn" style="background:#2196f3;color:white;padding:8px 14px;border:none;border-radius:6px;">ورود</button>
+            </div>
+            <p style="font-size:0.85em;color:#888;margin-top:10px;">کاربر پیش‌فرض: <strong>draghajanidelavar</strong> / رمز: <strong>admin</strong></p>
+        </div>
+    </div>
     <div class="container">
         <div class="header">
             <h1><span>📋</span>نظام پرسشنامه سرطان و حفظ باروری</h1>
@@ -470,6 +483,23 @@
                         <div class="custom-input-group" id="countyCustomInput">
                             <input type="text" id="countyCustom" placeholder="شهر دیگر را وارد کنید">
                         </div>
+                    </div>
+
+                    <div class="question-group">
+                        <label class="question-label">مرکز بالینی <span class="question-code">CENTER</span></label>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <select id="centerSelect" style="flex:1;padding:10px;border-radius:8px;border:2px solid #ddd;"></select>
+                            <input id="newCenterInput" placeholder="مرکز جدید" style="padding:10px;border-radius:8px;border:2px solid #ddd;min-width:160px;">
+                            <button type="button" id="addCenterBtn" style="background:#4caf50;color:white;border:none;padding:10px 12px;border-radius:8px;">افزودن</button>
+                        </div>
+                    </div>
+
+                    <div class="question-group">
+                        <label class="question-label">نوع پرسشنامه <span class="question-code">MODE</span></label>
+                        <select id="questionnaireMode" style="padding:10px;border-radius:8px;border:2px solid #ddd;">
+                            <option value="primary">پرسشنامه اول (پیش‌فرض)</option>
+                            <option value="secondary">پرسشنامه پزشکی (پرسشنامه دوم)</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -771,6 +801,85 @@
             alert('✓ Token ثبت شد!');
         }
 
+        // --- Simple local login ---
+        const DEFAULT_USER = 'draghajanidelavar';
+        const DEFAULT_PASS = 'admin';
+
+        function showLoginOverlay(show) {
+            const overlay = document.getElementById('loginOverlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function doLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if (user === DEFAULT_USER && pass === DEFAULT_PASS) {
+                sessionStorage.setItem('loggedIn', '1');
+                showLoginOverlay(false);
+                alert('ورود موفق');
+            } else {
+                alert('نام کاربری یا رمز عبور اشتباه است');
+            }
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', doLogin);
+
+        // --- Clinical center management ---
+        function loadCenters() {
+            const raw = localStorage.getItem('clinical_centers');
+            let centers = [];
+            if (raw) {
+                try { centers = JSON.parse(raw); } catch (e) { centers = []; }
+            }
+            if (!centers || centers.length === 0) {
+                centers = ['مرکز امیرکلا', 'مرکز امام ساری'];
+                localStorage.setItem('clinical_centers', JSON.stringify(centers));
+            }
+            return centers;
+        }
+
+        function renderCenterOptions() {
+            const select = document.getElementById('centerSelect');
+            select.innerHTML = '';
+            const centers = loadCenters();
+            centers.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                select.appendChild(opt);
+            });
+
+            const saved = localStorage.getItem('selected_center');
+            if (saved) select.value = saved;
+        }
+
+        document.getElementById('addCenterBtn').addEventListener('click', function() {
+            const v = document.getElementById('newCenterInput').value.trim();
+            if (!v) return alert('نام مرکز جدید را وارد کنید');
+            const centers = loadCenters();
+            if (!centers.includes(v)) {
+                centers.push(v);
+                localStorage.setItem('clinical_centers', JSON.stringify(centers));
+            }
+            document.getElementById('newCenterInput').value = '';
+            renderCenterOptions();
+        });
+
+        document.getElementById('centerSelect').addEventListener('change', function() {
+            localStorage.setItem('selected_center', this.value);
+        });
+
+        // Questionnaire mode toggle
+        document.getElementById('questionnaireMode').addEventListener('change', function() {
+            const val = this.value;
+            localStorage.setItem('questionnaire_mode', val);
+            if (val === 'secondary') {
+                // open questionnaire2
+                window.location.href = 'questionnaire2.html';
+            }
+        });
+
+
         // Province selector
         document.querySelectorAll('[data-field="province"]').forEach(btn => {
             btn.addEventListener('click', function(e) {
@@ -1002,6 +1111,19 @@
             setupCustomInputHandlers();
             updateUI();
             document.getElementById('identificationCode').focus();
+
+            // initialize centers and questionnaire mode
+            renderCenterOptions();
+            const mode = localStorage.getItem('questionnaire_mode') || 'primary';
+            document.getElementById('questionnaireMode').value = mode;
+
+            // show login if not authenticated locally
+            const loggedIn = sessionStorage.getItem('loggedIn');
+            if (!loggedIn) {
+                showLoginOverlay(true);
+            } else {
+                showLoginOverlay(false);
+            }
 
             // Show auth section if no token
             setTimeout(() => {

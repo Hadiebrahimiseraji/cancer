@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پرسشنامه پزشکی</title>
+    <style>
+        /* minimal styles copied from main app for consistency */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', 'IRANSans', Tahoma, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; padding:20px; direction:rtl; }
+        .container { max-width:1100px;margin:0 auto;background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align:center; }
+        .form-container { padding: 30px; }
+        .section { margin-bottom:20px;padding:20px;background:#f9f9f9;border-radius:10px; }
+        .question-label { display:block;margin-bottom:8px;font-weight:600; }
+        input, select, textarea { width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;margin-bottom:10px }
+        .actions { padding:20px; display:flex; gap:10px; }
+        .btn { padding:12px 18px;border-radius:8px;border:none; cursor:pointer }
+    </style>
+</head>
+<body>
+    <div id="loginOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:2000;">
+        <div style="background:white;padding:24px;border-radius:12px;min-width:320px;direction:rtl;text-align:right;">
+            <h3 style="margin-bottom:10px;">ورود کاربران</h3>
+            <p style="font-size:0.9em;color:#555;margin-bottom:12px;">برای استفاده وارد شوید</p>
+            <input id="loginUser" placeholder="نام کاربری" style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;">
+            <input id="loginPass" type="password" placeholder="رمز عبور" style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;">
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button id="loginBtn" style="background:#2196f3;color:white;padding:8px 14px;border:none;border-radius:6px;">ورود</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>📋 پرسشنامه پزشکی</h1>
+            <p>نسخه دوم پرسشنامه</p>
+        </div>
+
+        <div class="form-container">
+            <div class="section">
+                <label class="question-label">مرکز بالینی</label>
+                <div style="display:flex;gap:8px;">
+                    <select id="centerSelect"></select>
+                    <input id="newCenterInput" placeholder="افزودن مرکز جدید">
+                    <button id="addCenterBtn" class="btn" style="background:#4caf50;color:white;">افزودن</button>
+                </div>
+            </div>
+
+            <div class="section">
+                <label class="question-label">کد شناسایی</label>
+                <input id="q0_code" type="text">
+                <label class="question-label">سن</label>
+                <input id="q0_age" type="number">
+            </div>
+
+            <div class="actions">
+                <button id="submitBtn" class="btn" style="background:#4caf50;color:white;">ذخیره</button>
+                <a href="index.html" class="btn" style="background:#e0e0e0;color:#333;padding:12px 18px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;">بازگشت</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DEFAULT_USER = 'draghajanidelavar';
+        const DEFAULT_PASS = 'admin';
+
+        function showLoginOverlay(show) { document.getElementById('loginOverlay').style.display = show ? 'flex' : 'none'; }
+        function doLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if (user === DEFAULT_USER && pass === DEFAULT_PASS) {
+                sessionStorage.setItem('loggedIn', '1');
+                showLoginOverlay(false);
+            } else {
+                alert('نام کاربری یا رمز اشتباه است');
+            }
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', doLogin);
+
+        function loadCenters() {
+            let centers = [];
+            try { centers = JSON.parse(localStorage.getItem('clinical_centers') || '[]'); } catch(e){ centers = []; }
+            if (!centers || centers.length === 0) {
+                centers = ['مرکز امیرکلا', 'مرکز امام ساری'];
+                localStorage.setItem('clinical_centers', JSON.stringify(centers));
+            }
+            return centers;
+        }
+
+        function renderCenterOptions() {
+            const sel = document.getElementById('centerSelect'); sel.innerHTML = '';
+            loadCenters().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+            const saved = localStorage.getItem('selected_center'); if (saved) sel.value = saved;
+        }
+
+        document.getElementById('addCenterBtn').addEventListener('click', () => {
+            const v = document.getElementById('newCenterInput').value.trim(); if (!v) return alert('نام مرکز وارد شود');
+            const centers = loadCenters(); if (!centers.includes(v)) { centers.push(v); localStorage.setItem('clinical_centers', JSON.stringify(centers)); }
+            document.getElementById('newCenterInput').value = ''; renderCenterOptions();
+        });
+
+        document.getElementById('centerSelect').addEventListener('change', function(){ localStorage.setItem('selected_center', this.value); });
+
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const records = JSON.parse(localStorage.getItem('medical_form_records') || '[]');
+            const rec = { id: records.length+1, code: document.getElementById('q0_code').value || '-', age: document.getElementById('q0_age').value || '-', center: document.getElementById('centerSelect').value || '-' };
+            records.push(rec); localStorage.setItem('medical_form_records', JSON.stringify(records)); alert('ذخیره شد');
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCenterOptions();
+            const loggedIn = sessionStorage.getItem('loggedIn'); if (!loggedIn) showLoginOverlay(true); else showLoginOverlay(false);
+        });
+    </script>
+</body>
+</html>
