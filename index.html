@@ -53,18 +53,6 @@
             width: 0%;
             transition: width 0.3s ease;
         }
-        .auth-notice {
-            background: #fff3cd;
-            border-left: 5px solid #ff9800;
-            padding: 15px 20px;
-            margin: 20px;
-            border-radius: 8px;
-            color: #856404;
-            display: none;
-        }
-        .auth-notice.show {
-            display: block;
-        }
         .form-container {
             padding: 30px;
         }
@@ -370,7 +358,6 @@
     </style>
 </head>
 <body>
-    <!-- Login overlay -->
     <div id="loginOverlay">
         <div class="box">
             <h3 style="margin-bottom:10px;">ورود کاربران</h3>
@@ -385,8 +372,8 @@
 
     <div class="container">
         <div class="header">
-            <h1><span>📋</span>نظام پرسشنامه سرطان و حفظ باروری</h1>
-            <p class="header-subtitle">سیستم جامع ثبت اطلاعات بیماران</p>
+            <h1><span>📋</span>سیستم جامع پرسشنامه سرطان و حفظ باروری</h1>
+            <p class="header-subtitle">پلتفرم یکپارچه ثبت اطلاعات بیماران - دو پرسشنامه</p>
             <p style="margin-top: 10px;">
                 <span class="github-status local" id="githubStatus">📦 حالت محلی</span>
             </p>
@@ -410,20 +397,19 @@
         </div>
 
         <form id="mainForm" class="form-container">
-            <!-- PRIORITY FIELDS -->
             <div class="section">
-                <h2><span class="section-number">⭐</span>اطلاعات ضروری</h2>
+                <h2><span class="section-number">⭐</span>انتخاب نوع پرسشنامه و اطلاعات پایه</h2>
                 
                 <div class="question-group">
                     <label class="question-label">نوع پرسشنامه <span class="question-code">MODE</span></label>
-                    <select id="questionnaireMode" style="padding:10px;border-radius:8px;border:2px solid #ddd;">
-                        <option value="primary">پرسشنامه اول - سرطان و حفظ باروری</option>
-                        <option value="secondary">پرسشنامه دوم - پزشکی</option>
-                    </select>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="questionnaire_type" data-value="primary">پرسشنامه اول - حفظ باروری</button>
+                        <button type="button" class="option-btn" data-field="questionnaire_type" data-value="secondary">پرسشنامه دوم - پزشکی</button>
+                    </div>
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">جنسیت <span class="question-code">Q4</span></label>
+                    <label class="question-label">جنسیت <span class="question-code">GENDER</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="gender" data-value="M">مرد</button>
                         <button type="button" class="option-btn" data-field="gender" data-value="F">زن</button>
@@ -431,7 +417,7 @@
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">استان <span class="question-code">Q8A</span></label>
+                    <label class="question-label">استان <span class="question-code">PROVINCE</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="province" data-value="GIL">گیلان</button>
                         <button type="button" class="option-btn" data-field="province" data-value="MAZ">مازندران</button>
@@ -439,8 +425,8 @@
                     </div>
                 </div>
 
-                <div class="question-group" id="countyGroup" style="display:none;">
-                    <label class="question-label">شهرستان <span class="question-code">Q8B</span></label>
+                <div class="question-group conditional-section" id="countyGroup">
+                    <label class="question-label">شهرستان <span class="question-code">COUNTY</span></label>
                     <div class="options-grid" id="countyOptions"></div>
                     <div class="custom-input-group" id="countyCustomInput">
                         <input type="text" id="countyCustom" placeholder="شهر دیگر را وارد کنید">
@@ -457,33 +443,25 @@
                 </div>
             </div>
 
-            <!-- Section 1: مشخصات شناسایی -->
-            <div class="section conditional-section" id="primaryForm">
+            <div class="section conditional-section" id="primarySections">
                 <h2><span class="section-number">1</span>مشخصات شناسایی</h2>
                 <div class="question-group">
-                    <label class="question-label">کد شناسایی <span class="question-code">Q1</span></label>
+                    <label class="question-label">کد شناسایی <span class="question-code">ID</span></label>
                     <input type="text" id="identificationCode" placeholder="مثال: AM1" required>
                 </div>
                 <div class="question-group">
-                    <label class="question-label">سن <span class="question-code">Q2</span></label>
+                    <label class="question-label">سن <span class="question-code">AGE</span></label>
                     <input type="number" id="age" min="1" max="120" required>
                 </div>
-            </div>
 
-            <!-- Section 2: مشخصات دموگرافیک -->
-            <div class="section conditional-section" id="demographicSection">
-                <h2><span class="section-number">2</span>مشخصات دموگرافیک</h2>
-                
                 <div class="question-group">
-                    <label class="question-label">تحصیلات <span class="question-code">Q5</span></label>
+                    <label class="question-label">تحصیلات <span class="question-code">EDU</span></label>
                     <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="education" data-value="ILLITERATE">بی‌سواد</button>
                         <button type="button" class="option-btn" data-field="education" data-value="PRIMARY">ابتدایی</button>
                         <button type="button" class="option-btn" data-field="education" data-value="MIDDLE">راهنمایی</button>
                         <button type="button" class="option-btn" data-field="education" data-value="HIGH">دبیرستان</button>
-                        <button type="button" class="option-btn" data-field="education" data-value="ASSOCIATE">کاردانی</button>
-                        <button type="button" class="option-btn" data-field="education" data-value="BACHELOR">کارشناسی</button>
-                        <button type="button" class="option-btn" data-field="education" data-value="MASTER">ارشد</button>
-                        <button type="button" class="option-btn" data-field="education" data-value="PHD">دکتری</button>
+                        <button type="button" class="option-btn" data-field="education" data-value="UNIVERSITY">دانشگاهی</button>
                         <button type="button" class="option-btn" data-field="education" data-value="OTHER">سایر</button>
                     </div>
                     <div class="custom-input-group" id="educationCustomInput">
@@ -492,7 +470,7 @@
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">محل سکونت <span class="question-code">Q7</span></label>
+                    <label class="question-label">محل سکونت <span class="question-code">RES</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="residence" data-value="URBAN">شهری</button>
                         <button type="button" class="option-btn" data-field="residence" data-value="RURAL">روستایی</button>
@@ -504,12 +482,10 @@
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">وضعیت تأهل <span class="question-code">Q9</span></label>
+                    <label class="question-label">وضعیت تأهل <span class="question-code">MAR</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="marital" data-value="MARRIED">متأهل</button>
                         <button type="button" class="option-btn" data-field="marital" data-value="SINGLE">مجرد</button>
-                        <button type="button" class="option-btn" data-field="marital" data-value="DIVORCED">مطلقه</button>
-                        <button type="button" class="option-btn" data-field="marital" data-value="WIDOWED">بیوه</button>
                         <button type="button" class="option-btn" data-field="marital" data-value="OTHER">سایر</button>
                     </div>
                     <div class="custom-input-group" id="maritalCustomInput">
@@ -518,40 +494,37 @@
                 </div>
             </div>
 
-            <!-- Section 3: تشخیص سرطان (برای Primary) -->
-            <div class="section conditional-section" id="cancerSection">
-                <h2><span class="section-number">3</span>تشخیص سرطان</h2>
+            <div class="section conditional-section" id="cancerDiagnosisSection">
+                <h2><span class="section-number">2</span>اطلاعات تشخیصی سرطان</h2>
                 
                 <div class="question-group">
-                    <label class="question-label">سن در زمان تشخیص <span class="question-code">Q10</span></label>
-                    <div class="custom-input-group" style="display: block;">
-                        <input type="number" id="ageAtDiagnosisCustom" min="1" max="120" placeholder="سن را به عنوان عدد وارد کنید" style="border: 2px solid #667eea;">
-                    </div>
+                    <label class="question-label">سن در زمان تشخیص <span class="question-code">DIAG_AGE</span></label>
+                    <input type="number" id="ageAtDiagnosis" min="1" max="120" placeholder="سن را وارد کنید">
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">تاریخ تشخیص <span class="question-code">Q11</span></label>
+                    <label class="question-label">تاریخ تشخیص <span class="question-code">DIAG_DATE</span></label>
                     <div class="nested-input">
                         <div>
                             <label>ماه (1-12)</label>
-                            <div class="options-grid" id="monthGrid"></div>
+                            <input type="number" id="diagnosisMonth" min="1" max="12" placeholder="ماه">
                         </div>
                         <div>
                             <label>سال (1390-1404)</label>
-                            <div class="options-grid" id="yearGrid"></div>
+                            <input type="number" id="diagnosisYear" min="1390" max="1404" placeholder="سال">
                         </div>
                     </div>
                 </div>
 
-                <div class="question-group conditional-section" id="cancerWomenSection">
-                    <label class="question-label">نوع سرطان <span class="question-code">Q12</span></label>
+                <div class="question-group conditional-section" id="cancerTypeFemaleSection">
+                    <label class="question-label">نوع سرطان (زنان) <span class="question-code">CANCER_F</span></label>
                     <div class="options-grid">
-                        <button type="button" class="option-btn" data-field="cancerType" data-value="ACUTE_LEUKEMIA">لوسمی حاد</button>
-                        <button type="button" class="option-btn" data-field="cancerType" data-value="HODGKIN_LYMPHOMA">لنفوم هاجکین</button>
-                        <button type="button" class="option-btn" data-field="cancerType" data-value="NON_HODGKIN_LYMPHOMA">لنفوم غیر</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="BREAST">سرطان پستان</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="CERVIX">سرطان رحم</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="OVARY">سرطان تخمدان</button>
+                        <button type="button" class="option-btn" data-field="cancerType" data-value="LEUKEMIA">لوسمی حاد</button>
+                        <button type="button" class="option-btn" data-field="cancerType" data-value="LYMPHOMA_H">لنفوم هاجکین</button>
+                        <button type="button" class="option-btn" data-field="cancerType" data-value="LYMPHOMA_NH">لنفوم غیر هاجکین</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="OTHER">سایر</button>
                     </div>
                     <div class="custom-input-group" id="cancerTypeCustomInput">
@@ -559,23 +532,23 @@
                     </div>
                 </div>
 
-                <div class="question-group conditional-section" id="cancerMenSection">
-                    <label class="question-label">نوع سرطان <span class="question-code">Q13</span></label>
+                <div class="question-group conditional-section" id="cancerTypeMaleSection">
+                    <label class="question-label">نوع سرطان (مردان) <span class="question-code">CANCER_M</span></label>
                     <div class="options-grid">
-                        <button type="button" class="option-btn" data-field="cancerType" data-value="ACUTE_LEUKEMIA">لوسمی حاد</button>
-                        <button type="button" class="option-btn" data-field="cancerType" data-value="HODGKIN_LYMPHOMA">لنفوم هاجکین</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="TESTIS">بیضه</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="PROSTATE">پروستات</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="CNS">تومور CNS</button>
+                        <button type="button" class="option-btn" data-field="cancerType" data-value="LEUKEMIA">لوسمی حاد</button>
+                        <button type="button" class="option-btn" data-field="cancerType" data-value="LYMPHOMA_H">لنفوم هاجکین</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="OTHER">سایر</button>
                     </div>
-                    <div class="custom-input-group" id="cancerTypeCustomInputMen">
-                        <input type="text" id="cancerTypeCustomMen" placeholder="نوع سرطان دیگر را وارد کنید">
+                    <div class="custom-input-group" id="cancerTypeMaleCustomInput">
+                        <input type="text" id="cancerTypeMaleCustom" placeholder="نوع سرطان دیگر را وارد کنید">
                     </div>
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">درجه/گرید <span class="question-code">Q14</span></label>
+                    <label class="question-label">درجه/گرید <span class="question-code">GRADE</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="grade" data-value="GRADE1">گرید 1</button>
                         <button type="button" class="option-btn" data-field="grade" data-value="GRADE2">گرید 2</button>
@@ -588,31 +561,27 @@
                 </div>
 
                 <div class="question-group">
-                    <label class="question-label">مرحله TNM <span class="question-code">Q15</span></label>
+                    <label class="question-label">مرحله TNM <span class="question-code">STAGE</span></label>
                     <div class="options-grid">
-                        <button type="button" class="option-btn" data-field="stage" data-value="STAGE0">0</button>
-                        <button type="button" class="option-btn" data-field="stage" data-value="STAGEI">I</button>
-                        <button type="button" class="option-btn" data-field="stage" data-value="STAGEII">II</button>
-                        <button type="button" class="option-btn" data-field="stage" data-value="STAGEIII">III</button>
-                        <button type="button" class="option-btn" data-field="stage" data-value="STAGEIV">IV</button>
+                        <button type="button" class="option-btn" data-field="stage" data-value="STAGE0">مرحله 0</button>
+                        <button type="button" class="option-btn" data-field="stage" data-value="STAGE1">مرحله I</button>
+                        <button type="button" class="option-btn" data-field="stage" data-value="STAGE2">مرحله II</button>
+                        <button type="button" class="option-btn" data-field="stage" data-value="STAGE3">مرحله III</button>
+                        <button type="button" class="option-btn" data-field="stage" data-value="STAGE4">مرحله IV</button>
                         <button type="button" class="option-btn" data-field="stage" data-value="OTHER">سایر</button>
                     </div>
                     <div class="custom-input-group" id="stageCustomInput">
                         <input type="text" id="stageCustom" placeholder="سایر را وارد کنید">
                     </div>
                 </div>
-            </div>
 
-            <!-- Section 4: درمان -->
-            <div class="section conditional-section" id="treatmentSection">
-                <h2><span class="section-number">4</span>درمان</h2>
                 <div class="question-group">
-                    <label class="question-label">نوع درمان <span class="question-code">Q17</span></label>
+                    <label class="question-label">نوع درمان <span class="question-code">TREAT</span></label>
                     <div class="options-grid">
-                        <button type="button" class="option-btn" data-field="treatment" data-value="CHEMO">شیمی</button>
-                        <button type="button" class="option-btn" data-field="treatment" data-value="RADIO">رادیو</button>
-                        <button type="button" class="option-btn" data-field="treatment" data-value="BOTH">هردو</button>
+                        <button type="button" class="option-btn" data-field="treatment" data-value="CHEMO">شیمی‌درمانی</button>
+                        <button type="button" class="option-btn" data-field="treatment" data-value="RADIO">رادیوتراپی</button>
                         <button type="button" class="option-btn" data-field="treatment" data-value="SURGERY">جراحی</button>
+                        <button type="button" class="option-btn" data-field="treatment" data-value="COMBINED">ترکیبی</button>
                         <button type="button" class="option-btn" data-field="treatment" data-value="OTHER">سایر</button>
                     </div>
                     <div class="custom-input-group" id="treatmentCustomInput">
@@ -621,78 +590,107 @@
                 </div>
             </div>
 
-            <!-- Section 5: سابقه باروری (تنها برای زنان در Primary) -->
-            <div class="section conditional-section" id="fertilityHistorySection">
-                <h2><span class="section-number">5</span>سابقه باروری</h2>
-                
-                <div class="question-group" id="menshealthSection">
-                    <label class="question-label">سابقه بلوغ <span class="question-code">Q20A</span></label>
+            <div class="section conditional-section" id="fertilitySection">
+                <h2><span class="section-number">3</span>باروری و سلامت جنسی</h2>
+
+                <div class="question-group">
+                    <label class="question-label">آیا مشاوره باروری انجام شده است؟ <span class="question-code">FERT_CONS</span></label>
                     <div class="options-grid">
-                        <button type="button" class="option-btn" data-field="puberty" data-value="YES">بله</button>
-                        <button type="button" class="option-btn" data-field="puberty" data-value="NO">خیر</button>
+                        <button type="button" class="option-btn" data-field="fertilityConsultation" data-value="YES">بله</button>
+                        <button type="button" class="option-btn" data-field="fertilityConsultation" data-value="NO">خیر</button>
+                        <button type="button" class="option-btn" data-field="fertilityConsultation" data-value="OTHER">سایر</button>
                     </div>
                 </div>
 
-                <div class="question-group" id="femaleHistorySection">
-                    <label class="question-label">تعداد بارداری <span class="question-code">Q21</span></label>
+                <div class="question-group">
+                    <label class="question-label">اندیکاسیون حفظ باروری <span class="question-code">FERT_IND</span></label>
+                    <input type="text" id="fertilityIndication" placeholder="توضیحات اندیکاسیون را وارد کنید">
+                </div>
+
+                <div class="question-group conditional-section" id="femalePregnancySection">
+                    <label class="question-label">تعداد بارداری <span class="question-code">PREG_COUNT</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="pregnancyCount" data-value="0">0</button>
                         <button type="button" class="option-btn" data-field="pregnancyCount" data-value="1">1</button>
                         <button type="button" class="option-btn" data-field="pregnancyCount" data-value="2">2</button>
                         <button type="button" class="option-btn" data-field="pregnancyCount" data-value="3">3</button>
-                        <button type="button" class="option-btn" data-field="pregnancyCount" data-value="5">5+</button>
+                        <button type="button" class="option-btn" data-field="pregnancyCount" data-value="4">4</button>
+                        <button type="button" class="option-btn" data-field="pregnancyCount" data-value="5+">5+</button>
                     </div>
                 </div>
 
-                <div class="question-group" id="birthSection">
-                    <label class="question-label">تعداد زایمان <span class="question-code">Q22</span></label>
+                <div class="question-group conditional-section" id="femaleBirthSection">
+                    <label class="question-label">تعداد زایمان <span class="question-code">BIRTH_COUNT</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="birthCount" data-value="0">0</button>
                         <button type="button" class="option-btn" data-field="birthCount" data-value="1">1</button>
                         <button type="button" class="option-btn" data-field="birthCount" data-value="2">2</button>
                         <button type="button" class="option-btn" data-field="birthCount" data-value="3">3</button>
-                        <button type="button" class="option-btn" data-field="birthCount" data-value="5">5+</button>
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="4">4</button>
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="5+">5+</button>
                     </div>
                 </div>
 
-                <div class="question-group" id="childrenSection">
-                    <label class="question-label">تعداد فرزندان <span class="question-code">Q23</span></label>
+                <div class="question-group conditional-section" id="femaleChildrenSection">
+                    <label class="question-label">تعداد فرزندان <span class="question-code">CHILD_COUNT</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="childrenCount" data-value="0">0</button>
                         <button type="button" class="option-btn" data-field="childrenCount" data-value="1">1</button>
                         <button type="button" class="option-btn" data-field="childrenCount" data-value="2">2</button>
                         <button type="button" class="option-btn" data-field="childrenCount" data-value="3">3</button>
-                        <button type="button" class="option-btn" data-field="childrenCount" data-value="5">5+</button>
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="4">4</button>
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="5+">5+</button>
                     </div>
                 </div>
 
-                <div class="question-group" id="menstruationSection">
-                    <label class="question-label">سابقه قاعدگی <span class="question-code">Q24</span></label>
+                <div class="question-group conditional-section" id="femaleMenstruationSection">
+                    <label class="question-label">سابقه قاعدگی <span class="question-code">MENSTR</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="menstruation" data-value="YES">بله</button>
                         <button type="button" class="option-btn" data-field="menstruation" data-value="NO">خیر</button>
+                        <button type="button" class="option-btn" data-field="menstruation" data-value="OTHER">سایر</button>
+                    </div>
+                </div>
+
+                <div class="question-group conditional-section" id="malePubertySection">
+                    <label class="question-label">سابقه بلوغ <span class="question-code">PUBERTY</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="puberty" data-value="YES">بله</button>
+                        <button type="button" class="option-btn" data-field="puberty" data-value="NO">خیر</button>
+                        <button type="button" class="option-btn" data-field="puberty" data-value="OTHER">سایر</button>
+                    </div>
+                </div>
+
+                <div class="question-group">
+                    <label class="question-label">روش پیشگیری از بارداری <span class="question-code">CONTRACEPT</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="contraception" data-value="NONE">ندارد</button>
+                        <button type="button" class="option-btn" data-field="contraception" data-value="YES">دارد</button>
+                        <button type="button" class="option-btn" data-field="contraception" data-value="OTHER">سایر</button>
+                    </div>
+                    <div class="custom-input-group" id="contraceptionCustomInput">
+                        <input type="text" id="contraceptionCustom" placeholder="روش پیشگیری را وارد کنید">
                     </div>
                 </div>
             </div>
 
-            <!-- Section 6: توضیحات اضافی -->
-            <div class="section conditional-section" id="notesSection">
-                <h2><span class="section-number">6</span>توضیحات اضافی</h2>
+            <div class="section">
+                <h2><span class="section-number">4</span>توضیحات تکمیلی</h2>
                 <div class="question-group">
-                    <label class="question-label">نکات و توضیحات <span class="question-code">NOTES</span></label>
-                    <textarea id="additionalNotes" placeholder="توضیحات..." rows="5"></textarea>
+                    <label class="question-label">یادداشت‌ها و نکات اضافی <span class="question-code">NOTES</span></label>
+                    <textarea id="additionalNotes" placeholder="توضیحات را وارد کنید..." rows="5"></textarea>
                 </div>
             </div>
         </form>
 
         <div class="notes-section">
-            <h3>📌 اطلاعات مهم</h3>
+            <h3>📌 راهنمای استفاده</h3>
             <ul>
-                <li><strong>پرسشنامه‌های دو‌گانه:</strong> انتخاب کنید کدام پرسشنامه را می‌خواهید</li>
-                <li><strong>سؤالات جنسیت‌ی:</strong> سؤالات براساس جنسیت فیلتر می‌شود</li>
-                <li><strong>Local Storage:</strong> تمام داده‌ها محلی ذخیره می‌شود</li>
-                <li><strong>CSV Export:</strong> می‌توانید تمام داده‌ها را دانلود کنید</li>
-                <li><strong>Ctrl+Enter:</strong> ذخیره سریع</li>
+                <li><strong>نوع پرسشنامه:</strong> ابتدا نوع پرسشنامه (اول یا دوم) و جنسیت را انتخاب کنید</li>
+                <li><strong>سؤالات جنسیت‌محور:</strong> سؤالات بر اساس جنسیت نمایش داده می‌شود</li>
+                <li><strong>ذخیره محلی:</strong> تمام داده‌ها به صورت محلی ذخیره می‌شود</li>
+                <li><strong>خروجی CSV:</strong> امکان دانلود کل داده‌ها به صورت فایل CSV</li>
+                <li><strong>میانبرها:</strong> Ctrl+Enter برای ذخیره | Ctrl+R برای پاک‌کردن</li>
             </ul>
         </div>
 
@@ -714,8 +712,15 @@
         let formData = {};
         let allRecords = [];
         let currentRecordId = 1;
+        let currentGender = null;
+        let currentQuestionnaireType = null;
 
-        // ============ Login System ============
+        const countiesByProvince = {
+            'GIL': ['رشت', 'فومن', 'لاهیجان', 'تالش', 'سیاهکل', 'سایر'],
+            'MAZ': ['ساری', 'بابل', 'آمل', 'قائمشهر', 'نور', 'سایر'],
+            'GOL': ['گرگان', 'گنبد', 'آق‌قلا', 'مینودشت', 'کردکوی', 'سایر']
+        };
+
         function showLoginOverlay(show) {
             document.getElementById('loginOverlay').style.display = show ? 'flex' : 'none';
         }
@@ -737,7 +742,6 @@
             if (e.key === 'Enter') doLogin();
         });
 
-        // ============ Center Management ============
         function loadCenters() {
             const raw = localStorage.getItem('clinical_centers');
             let centers = [];
@@ -781,26 +785,18 @@
             formData.center = this.value;
         });
 
-        // ============ Counties Data ============
-        const countiesByProvince = {
-            'GIL': ['رشت', 'فومن', 'لاهیجان', 'تالش', 'سیاهکل'],
-            'MAZ': ['ساری', 'بابل', 'آمل', 'قائمشهر', 'نور'],
-            'GOL': ['گرگان', 'گنبد', 'آق‌قلا', 'مینودشت', 'کردکوی']
-        };
-
-        function updateCountyOptions() {
-            const province = Object.keys(formData).find(k => formData[k] === document.querySelector('[data-field="province"].selected')?.dataset.value);
-            const selectedProvince = document.querySelector('[data-field="province"].selected')?.dataset.value;
+        function updateCountyOptions(province) {
+            const countyGroup = document.getElementById('countyGroup');
+            const countyOptions = document.getElementById('countyOptions');
+            countyOptions.innerHTML = '';
             
-            if (!selectedProvince) {
-                document.getElementById('countyGroup').style.display = 'none';
+            if (!province) {
+                countyGroup.classList.remove('active');
                 return;
             }
             
-            document.getElementById('countyGroup').style.display = 'block';
-            const counties = countiesByProvince[selectedProvince] || [];
-            const countyContainer = document.getElementById('countyOptions');
-            countyContainer.innerHTML = '';
+            countyGroup.classList.add('active');
+            const counties = countiesByProvince[province] || [];
             
             counties.forEach(county => {
                 const btn = document.createElement('button');
@@ -809,150 +805,77 @@
                 btn.textContent = county;
                 btn.dataset.field = 'county';
                 btn.dataset.value = county;
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('[data-field="county"]').forEach(b => b.classList.remove('selected'));
-                    this.classList.add('selected');
-                    formData.county = this.dataset.value;
-                    document.getElementById('countyCustomInput').classList.remove('active');
-                });
-                countyContainer.appendChild(btn);
+                countyOptions.appendChild(btn);
             });
-            
-            const otherBtn = document.createElement('button');
-            otherBtn.type = 'button';
-            otherBtn.className = 'option-btn';
-            otherBtn.textContent = 'سایر';
-            otherBtn.dataset.field = 'county';
-            otherBtn.dataset.value = 'OTHER';
-            otherBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelectorAll('[data-field="county"]').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                formData.county = 'OTHER';
-                document.getElementById('countyCustomInput').classList.add('active');
-            });
-            countyContainer.appendChild(otherBtn);
         }
 
-        // ============ Gender-Specific Logic ============
-        function updateFormBasedOnGender() {
-            const genderBtn = document.querySelector('[data-field="gender"].selected');
-            if (!genderBtn) return;
+        function updateGenderSections(gender) {
+            currentGender = gender;
             
-            const gender = genderBtn.dataset.value;
-            formData.gender = gender;
-
-            // Show/hide gender-specific sections
             if (gender === 'F') {
-                document.getElementById('cancerWomenSection').classList.add('active');
-                document.getElementById('cancerMenSection').classList.remove('active');
-                document.getElementById('menstruationSection').style.display = 'block';
-                document.getElementById('menshealthSection').style.display = 'none';
-                document.getElementById('femaleHistorySection').style.display = 'block';
-                document.getElementById('birthSection').style.display = 'block';
-                document.getElementById('childrenSection').style.display = 'block';
+                document.getElementById('cancerTypeFemaleSection').classList.add('active');
+                document.getElementById('cancerTypeMaleSection').classList.remove('active');
+                document.getElementById('femalePregnancySection').classList.add('active');
+                document.getElementById('femaleBirthSection').classList.add('active');
+                document.getElementById('femaleChildrenSection').classList.add('active');
+                document.getElementById('femaleMenstruationSection').classList.add('active');
+                document.getElementById('malePubertySection').classList.remove('active');
             } else if (gender === 'M') {
-                document.getElementById('cancerWomenSection').classList.remove('active');
-                document.getElementById('cancerMenSection').classList.add('active');
-                document.getElementById('menstruationSection').style.display = 'none';
-                document.getElementById('menshealthSection').style.display = 'block';
-                document.getElementById('femaleHistorySection').style.display = 'none';
-                document.getElementById('birthSection').style.display = 'none';
-                document.getElementById('childrenSection').style.display = 'none';
+                document.getElementById('cancerTypeFemaleSection').classList.remove('active');
+                document.getElementById('cancerTypeMaleSection').classList.add('active');
+                document.getElementById('femalePregnancySection').classList.remove('active');
+                document.getElementById('femaleBirthSection').classList.remove('active');
+                document.getElementById('femaleChildrenSection').classList.remove('active');
+                document.getElementById('femaleMenstruationSection').classList.remove('active');
+                document.getElementById('malePubertySection').classList.add('active');
             }
         }
 
-        // ============ Questionnaire Mode Logic ============
-        function updateQuestionnaireMode() {
-            const mode = document.getElementById('questionnaireMode').value;
-            formData.mode = mode;
-
-            if (mode === 'primary') {
-                document.getElementById('primaryForm').classList.add('active');
-                document.getElementById('demographicSection').classList.add('active');
-                document.getElementById('cancerSection').classList.add('active');
-                document.getElementById('treatmentSection').classList.add('active');
-                document.getElementById('fertilityHistorySection').classList.add('active');
-                document.getElementById('notesSection').classList.add('active');
+        function updateQuestionnaireSections(type) {
+            currentQuestionnaireType = type;
+            
+            if (type === 'primary') {
+                document.getElementById('primarySections').classList.add('active');
+                document.getElementById('cancerDiagnosisSection').classList.add('active');
+                document.getElementById('fertilitySection').classList.add('active');
             } else {
-                document.getElementById('primaryForm').classList.remove('active');
-                document.getElementById('demographicSection').classList.remove('active');
-                document.getElementById('cancerSection').classList.remove('active');
-                document.getElementById('treatmentSection').classList.remove('active');
-                document.getElementById('fertilityHistorySection').classList.remove('active');
-                document.getElementById('notesSection').classList.add('active');
+                document.getElementById('primarySections').classList.remove('active');
+                document.getElementById('cancerDiagnosisSection').classList.remove('active');
+                document.getElementById('fertilitySection').classList.remove('active');
             }
         }
 
-        // ============ Option Button Handler ============
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('option-btn')) {
                 const field = e.target.dataset.field;
                 const value = e.target.dataset.value;
                 
-                if (!field.includes('custom')) {
-                    e.preventDefault();
-                    document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
-                    e.target.classList.add('selected');
-                    formData[field] = value;
+                e.preventDefault();
+                document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
+                e.target.classList.add('selected');
+                formData[field] = value;
 
-                    if (field === 'gender') {
-                        updateFormBasedOnGender();
-                    }
+                if (field === 'gender') {
+                    updateGenderSections(value);
+                }
 
-                    if (field === 'province') {
-                        updateCountyOptions();
-                    }
+                if (field === 'questionnaire_type') {
+                    updateQuestionnaireSections(value);
+                }
 
-                    const customInput = document.getElementById(`${field}CustomInput`);
-                    if (customInput) customInput.classList.remove('active');
+                if (field === 'province') {
+                    updateCountyOptions(value);
+                }
+
+                const customInput = document.getElementById(`${field}CustomInput`);
+                if (customInput && value === 'OTHER') {
+                    customInput.classList.add('active');
+                } else if (customInput) {
+                    customInput.classList.remove('active');
                 }
             }
         });
 
-        // ============ Month and Year Grid ============
-        function generateMonths() {
-            const container = document.getElementById('monthGrid');
-            container.innerHTML = '';
-            for (let i = 1; i <= 12; i++) {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'option-btn';
-                btn.textContent = i;
-                btn.dataset.field = 'diagnosisMonth';
-                btn.dataset.value = i;
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('[data-field="diagnosisMonth"]').forEach(b => b.classList.remove('selected'));
-                    this.classList.add('selected');
-                    formData.diagnosisMonth = this.dataset.value;
-                });
-                container.appendChild(btn);
-            }
-        }
-
-        function generateYears() {
-            const container = document.getElementById('yearGrid');
-            container.innerHTML = '';
-            for (let i = 1390; i <= 1404; i++) {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'option-btn';
-                btn.textContent = i;
-                btn.dataset.field = 'diagnosisYear';
-                btn.dataset.value = i;
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    document.querySelectorAll('[data-field="diagnosisYear"]').forEach(b => b.classList.remove('selected'));
-                    this.classList.add('selected');
-                    formData.diagnosisYear = this.dataset.value;
-                });
-                container.appendChild(btn);
-            }
-        }
-
-        // ============ Storage Management ============
         function loadFromStorage() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
@@ -969,7 +892,6 @@
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
-        // ============ CSV Export ============
         function downloadCSV() {
             if (allRecords.length === 0) {
                 alert('هیچ رکوردی برای دانلود وجود ندارد');
@@ -978,7 +900,7 @@
 
             const headers = ['ردیف', 'تاریخ', 'کد_شناسایی', 'سن', 'جنسیت', 'استان', 'شهرستان', 'تحصیلات', 'محل_سکونت', 'وضعیت_تأهل', 'سن_تشخیص', 'ماه_تشخیص', 'سال_تشخیص', 'نوع_سرطان', 'درجه', 'مرحله', 'نوع_درمان', 'مشاوره_باروری', 'اندیکاسیون_باروری', 'بارداری', 'زایمان', 'فرزند', 'قاعدگی', 'بلوغ', 'پیشگیری', 'نکات', 'مرکز', 'پرسشنامه'];
             
-            let csvContent = headers.join('\t') + '\r\n';
+            let csvContent = '\uFEFF' + headers.join('\t') + '\r\n';
             
             allRecords.forEach((record, index) => {
                 const row = [
@@ -986,7 +908,7 @@
                     record.timestamp || '-',
                     record.identificationCode || '-',
                     record.age || '-',
-                    record.gender === 'M' ? 'M' : record.gender === 'F' ? 'F' : '-',
+                    record.gender || '-',
                     record.province || '-',
                     record.county || '-',
                     record.education || '-',
@@ -1004,12 +926,12 @@
                     record.pregnancyCount || '-',
                     record.birthCount || '-',
                     record.childrenCount || '-',
-                    record.menstruation || record.puberty || '-',
+                    record.menstruation || '-',
                     record.puberty || '-',
                     record.contraception || '-',
                     record.additionalNotes || '-',
                     record.center || '-',
-                    record.mode || 'primary'
+                    record.questionnaire_type || 'primary'
                 ];
                 csvContent += row.join('\t') + '\r\n';
             });
@@ -1018,24 +940,23 @@
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', `cancer_data_${new Date().toLocaleDateString('fa-IR')}.tsv`);
+            link.setAttribute('download', `cancer_data_${new Date().toISOString().slice(0,10)}.tsv`);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
-        // ============ Form Submission ============
         document.getElementById('submitBtn').addEventListener('click', function() {
             formData.timestamp = new Date().toLocaleString('fa-IR');
             formData.identificationCode = document.getElementById('identificationCode').value || '-';
             formData.age = document.getElementById('age').value || '-';
-            formData.ageAtDiagnosis = document.getElementById('ageAtDiagnosisCustom').value || '-';
-            formData.diagnosisMonth = formData.diagnosisMonth || '-';
-            formData.diagnosisYear = formData.diagnosisYear || '-';
+            formData.ageAtDiagnosis = document.getElementById('ageAtDiagnosis').value || '-';
+            formData.diagnosisMonth = document.getElementById('diagnosisMonth').value || '-';
+            formData.diagnosisYear = document.getElementById('diagnosisYear').value || '-';
             formData.additionalNotes = document.getElementById('additionalNotes').value || '-';
             formData.center = document.getElementById('centerSelect').value || '-';
-            formData.mode = document.getElementById('questionnaireMode').value || 'primary';
+            formData.fertilityIndication = document.getElementById('fertilityIndication').value || '-';
 
             const record = { ...formData, ID: currentRecordId };
             allRecords.push(record);
@@ -1043,7 +964,6 @@
             localStorage.setItem(STORAGE_ID_KEY, currentRecordId + 1);
             currentRecordId++;
 
-            // Show success popup
             const popup = document.getElementById('successPopup');
             popup.classList.add('show');
             setTimeout(() => popup.classList.remove('show'), 2000);
@@ -1052,7 +972,6 @@
             resetForm();
         });
 
-        // ============ Form Reset ============
         document.getElementById('resetBtn').addEventListener('click', function() {
             resetForm();
         });
@@ -1064,12 +983,11 @@
             document.getElementById('identificationCode').focus();
         }
 
-        // ============ CSV Download ============
         document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
 
-        // ============ Keyboard Shortcuts ============
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
                 document.getElementById('submitBtn').click();
             }
             if (e.ctrlKey && e.key === 'r') {
@@ -1078,7 +996,6 @@
             }
         });
 
-        // ============ Initialization ============
         window.addEventListener('DOMContentLoaded', function() {
             const loggedIn = sessionStorage.getItem('loggedIn');
             if (!loggedIn) {
@@ -1089,10 +1006,6 @@
 
             renderCenterOptions();
             loadFromStorage();
-            generateMonths();
-            generateYears();
-            updateQuestionnaireMode();
-            document.getElementById('questionnaireMode').addEventListener('change', updateQuestionnaireMode);
         });
     </script>
 </body>
