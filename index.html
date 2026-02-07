@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام پرسشنامه سرطان - حفظ باروری</title>
+    <title>سیستم جامع پرسشنامه سرطان و حفظ باروری</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -64,50 +64,6 @@
         }
         .auth-notice.show {
             display: block;
-        }
-        .auth-section {
-            background: #e3f2fd;
-            border: 2px solid #2196f3;
-            padding: 20px;
-            margin: 20px;
-            border-radius: 12px;
-            display: none;
-        }
-        .auth-section.show {
-            display: block;
-        }
-        .auth-section input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #2196f3;
-            border-radius: 8px;
-            font-size: 0.95em;
-        }
-        .auth-section button {
-            background: #2196f3;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-        .priority-fields {
-            background: #fff3e0;
-            border: 2px solid #ff9800;
-            padding: 25px;
-            margin: 20px;
-            border-radius: 12px;
-        }
-        .priority-fields .section {
-            background: white;
-            border-right: 5px solid #ff9800;
-        }
-        .priority-fields .section h2 {
-            border-color: #ff9800;
-            color: #f57c00;
         }
         .form-container {
             padding: 30px;
@@ -386,6 +342,23 @@
             background: #fff3cd;
             color: #856404;
         }
+        #loginOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        #loginOverlay .box {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            min-width: 320px;
+            direction: rtl;
+            text-align: right;
+        }
         @media (max-width: 768px) {
             .header h1 { font-size: 1.5em; }
             .options-grid { grid-template-columns: repeat(2, 1fr); }
@@ -397,9 +370,9 @@
     </style>
 </head>
 <body>
-    <!-- Login overlay (requires local login before using the form) -->
-    <div id="loginOverlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:2000;">
-        <div style="background:white;padding:24px;border-radius:12px;min-width:320px;direction:rtl;text-align:right;">
+    <!-- Login overlay -->
+    <div id="loginOverlay">
+        <div class="box">
             <h3 style="margin-bottom:10px;">ورود کاربران</h3>
             <p style="font-size:0.9em;color:#555;margin-bottom:12px;">لطفاً با نام کاربری و رمز عبور وارد شوید</p>
             <input id="loginUser" placeholder="نام کاربری" style="width:100%;padding:10px;margin-bottom:8px;border:1px solid #ddd;border-radius:6px;">
@@ -407,13 +380,13 @@
             <div style="display:flex;gap:8px;justify-content:flex-end;">
                 <button id="loginBtn" style="background:#2196f3;color:white;padding:8px 14px;border:none;border-radius:6px;">ورود</button>
             </div>
-            <!-- default credentials removed from UI for security -->
         </div>
     </div>
+
     <div class="container">
         <div class="header">
             <h1><span>📋</span>نظام پرسشنامه سرطان و حفظ باروری</h1>
-            <p class="header-subtitle">سیستم ثبت اطلاعات بیماران مراکز درمانی شمال ایران</p>
+            <p class="header-subtitle">سیستم جامع ثبت اطلاعات بیماران</p>
             <p style="margin-top: 10px;">
                 <span class="github-status local" id="githubStatus">📦 حالت محلی</span>
             </p>
@@ -432,64 +405,60 @@
             </div>
         </div>
 
-        <!-- GitHub token UI removed: app will read token from browser localStorage if present -->
-
         <div class="info-message">
             ℹ️ برای ذخیره فایل: <strong>Ctrl+Enter</strong> | برای پاک کردن: <strong>Ctrl+R</strong>
         </div>
 
         <form id="mainForm" class="form-container">
             <!-- PRIORITY FIELDS -->
-            <div class="priority-fields">
-                <div class="section">
-                    <h2><span class="section-number">⭐</span>اطلاعات ضروری</h2>
-                    
-                    <div class="question-group">
-                        <label class="question-label">جنسیت <span class="question-code">Q4</span></label>
-                        <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="gender" data-value="M">مرد</button>
-                            <button type="button" class="option-btn" data-field="gender" data-value="F">زن</button>
-                        </div>
-                    </div>
+            <div class="section">
+                <h2><span class="section-number">⭐</span>اطلاعات ضروری</h2>
+                
+                <div class="question-group">
+                    <label class="question-label">نوع پرسشنامه <span class="question-code">MODE</span></label>
+                    <select id="questionnaireMode" style="padding:10px;border-radius:8px;border:2px solid #ddd;">
+                        <option value="primary">پرسشنامه اول - سرطان و حفظ باروری</option>
+                        <option value="secondary">پرسشنامه دوم - پزشکی</option>
+                    </select>
+                </div>
 
-                    <div class="question-group">
-                        <label class="question-label">استان <span class="question-code">Q8A</span></label>
-                        <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="province" data-value="GIL">گیلان</button>
-                            <button type="button" class="option-btn" data-field="province" data-value="MAZ">مازندران</button>
-                            <button type="button" class="option-btn" data-field="province" data-value="GOL">گلستان</button>
-                        </div>
+                <div class="question-group">
+                    <label class="question-label">جنسیت <span class="question-code">Q4</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="gender" data-value="M">مرد</button>
+                        <button type="button" class="option-btn" data-field="gender" data-value="F">زن</button>
                     </div>
+                </div>
 
-                    <div class="question-group" id="countyGroup" style="display:none;">
-                        <label class="question-label">شهرستان <span class="question-code">Q8B</span></label>
-                        <div class="options-grid" id="countyOptions"></div>
-                        <div class="custom-input-group" id="countyCustomInput">
-                            <input type="text" id="countyCustom" placeholder="شهر دیگر را وارد کنید">
-                        </div>
+                <div class="question-group">
+                    <label class="question-label">استان <span class="question-code">Q8A</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="province" data-value="GIL">گیلان</button>
+                        <button type="button" class="option-btn" data-field="province" data-value="MAZ">مازندران</button>
+                        <button type="button" class="option-btn" data-field="province" data-value="GOL">گلستان</button>
                     </div>
+                </div>
 
-                    <div class="question-group">
-                        <label class="question-label">مرکز بالینی <span class="question-code">CENTER</span></label>
-                        <div style="display:flex;gap:10px;align-items:center;">
-                            <select id="centerSelect" style="flex:1;padding:10px;border-radius:8px;border:2px solid #ddd;"></select>
-                            <input id="newCenterInput" placeholder="مرکز جدید" style="padding:10px;border-radius:8px;border:2px solid #ddd;min-width:160px;">
-                            <button type="button" id="addCenterBtn" style="background:#4caf50;color:white;border:none;padding:10px 12px;border-radius:8px;">افزودن</button>
-                        </div>
+                <div class="question-group" id="countyGroup" style="display:none;">
+                    <label class="question-label">شهرستان <span class="question-code">Q8B</span></label>
+                    <div class="options-grid" id="countyOptions"></div>
+                    <div class="custom-input-group" id="countyCustomInput">
+                        <input type="text" id="countyCustom" placeholder="شهر دیگر را وارد کنید">
                     </div>
+                </div>
 
-                    <div class="question-group">
-                        <label class="question-label">نوع پرسشنامه <span class="question-code">MODE</span></label>
-                        <select id="questionnaireMode" style="padding:10px;border-radius:8px;border:2px solid #ddd;">
-                            <option value="primary">پرسشنامه اول (پیش‌فرض)</option>
-                            <option value="secondary">پرسشنامه پزشکی (پرسشنامه دوم)</option>
-                        </select>
+                <div class="question-group">
+                    <label class="question-label">مرکز بالینی <span class="question-code">CENTER</span></label>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <select id="centerSelect" style="flex:1;padding:10px;border-radius:8px;border:2px solid #ddd;"></select>
+                        <input id="newCenterInput" placeholder="مرکز جدید" style="padding:10px;border-radius:8px;border:2px solid #ddd;min-width:160px;">
+                        <button type="button" id="addCenterBtn" style="background:#4caf50;color:white;border:none;padding:10px 12px;border-radius:8px;">افزودن</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Section 1 -->
-            <div class="section">
+            <!-- Section 1: مشخصات شناسایی -->
+            <div class="section conditional-section" id="primaryForm">
                 <h2><span class="section-number">1</span>مشخصات شناسایی</h2>
                 <div class="question-group">
                     <label class="question-label">کد شناسایی <span class="question-code">Q1</span></label>
@@ -501,8 +470,8 @@
                 </div>
             </div>
 
-            <!-- Section 2 -->
-            <div class="section">
+            <!-- Section 2: مشخصات دموگرافیک -->
+            <div class="section conditional-section" id="demographicSection">
                 <h2><span class="section-number">2</span>مشخصات دموگرافیک</h2>
                 
                 <div class="question-group">
@@ -549,7 +518,7 @@
                 </div>
             </div>
 
-            <!-- Section 3 -->
+            <!-- Section 3: تشخیص سرطان (برای Primary) -->
             <div class="section conditional-section" id="cancerSection">
                 <h2><span class="section-number">3</span>تشخیص سرطان</h2>
                 
@@ -600,8 +569,8 @@
                         <button type="button" class="option-btn" data-field="cancerType" data-value="CNS">تومور CNS</button>
                         <button type="button" class="option-btn" data-field="cancerType" data-value="OTHER">سایر</button>
                     </div>
-                    <div class="custom-input-group" id="cancerTypeCustomInput">
-                        <input type="text" id="cancerTypeCustom" placeholder="نوع سرطان دیگر را وارد کنید">
+                    <div class="custom-input-group" id="cancerTypeCustomInputMen">
+                        <input type="text" id="cancerTypeCustomMen" placeholder="نوع سرطان دیگر را وارد کنید">
                     </div>
                 </div>
 
@@ -634,7 +603,7 @@
                 </div>
             </div>
 
-            <!-- Section 4 -->
+            <!-- Section 4: درمان -->
             <div class="section conditional-section" id="treatmentSection">
                 <h2><span class="section-number">4</span>درمان</h2>
                 <div class="question-group">
@@ -652,11 +621,19 @@
                 </div>
             </div>
 
-            <!-- Section 5 -->
-            <div class="section conditional-section" id="historySection">
-                <h2><span class="section-number">5</span>سابقه</h2>
+            <!-- Section 5: سابقه باروری (تنها برای زنان در Primary) -->
+            <div class="section conditional-section" id="fertilityHistorySection">
+                <h2><span class="section-number">5</span>سابقه باروری</h2>
                 
-                <div class="question-group">
+                <div class="question-group" id="menshealthSection">
+                    <label class="question-label">سابقه بلوغ <span class="question-code">Q20A</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="puberty" data-value="YES">بله</button>
+                        <button type="button" class="option-btn" data-field="puberty" data-value="NO">خیر</button>
+                    </div>
+                </div>
+
+                <div class="question-group" id="femaleHistorySection">
                     <label class="question-label">تعداد بارداری <span class="question-code">Q21</span></label>
                     <div class="options-grid">
                         <button type="button" class="option-btn" data-field="pregnancyCount" data-value="0">0</button>
@@ -666,10 +643,40 @@
                         <button type="button" class="option-btn" data-field="pregnancyCount" data-value="5">5+</button>
                     </div>
                 </div>
+
+                <div class="question-group" id="birthSection">
+                    <label class="question-label">تعداد زایمان <span class="question-code">Q22</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="0">0</button>
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="3">3</button>
+                        <button type="button" class="option-btn" data-field="birthCount" data-value="5">5+</button>
+                    </div>
+                </div>
+
+                <div class="question-group" id="childrenSection">
+                    <label class="question-label">تعداد فرزندان <span class="question-code">Q23</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="0">0</button>
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="3">3</button>
+                        <button type="button" class="option-btn" data-field="childrenCount" data-value="5">5+</button>
+                    </div>
+                </div>
+
+                <div class="question-group" id="menstruationSection">
+                    <label class="question-label">سابقه قاعدگی <span class="question-code">Q24</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="menstruation" data-value="YES">بله</button>
+                        <button type="button" class="option-btn" data-field="menstruation" data-value="NO">خیر</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Section 6 -->
-            <div class="section">
+            <!-- Section 6: توضیحات اضافی -->
+            <div class="section conditional-section" id="notesSection">
                 <h2><span class="section-number">6</span>توضیحات اضافی</h2>
                 <div class="question-group">
                     <label class="question-label">نکات و توضیحات <span class="question-code">NOTES</span></label>
@@ -681,11 +688,11 @@
         <div class="notes-section">
             <h3>📌 اطلاعات مهم</h3>
             <ul>
-                <li><strong>GitHub Integration:</strong> اگر Token را وارد کنید، داده‌ها خودکار در ریپو ذخیره می‌شود</li>
-                <li><strong>Local Storage:</strong> تمام داده‌ها محلی نیز ذخیره می‌شود</li>
+                <li><strong>پرسشنامه‌های دو‌گانه:</strong> انتخاب کنید کدام پرسشنامه را می‌خواهید</li>
+                <li><strong>سؤالات جنسیت‌ی:</strong> سؤالات براساس جنسیت فیلتر می‌شود</li>
+                <li><strong>Local Storage:</strong> تمام داده‌ها محلی ذخیره می‌شود</li>
                 <li><strong>CSV Export:</strong> می‌توانید تمام داده‌ها را دانلود کنید</li>
                 <li><strong>Ctrl+Enter:</strong> ذخیره سریع</li>
-                <li><strong>Ctrl+G:</strong> تنظیم GitHub Token</li>
             </ul>
         </div>
 
@@ -698,13 +705,213 @@
 
     <div class="success-popup" id="successPopup">✓ ذخیره شد!</div>
 
-    <!-- Load configuration and app scripts -->
-    <script src="config.js"></script>
-    <script src="app.js"></script>
     <script>
-        let formData = {};
+        const DEFAULT_USER = 'draghajanidelavar';
+        const DEFAULT_PASS = 'admin';
+        const STORAGE_KEY = 'cancer_form_records';
+        const STORAGE_ID_KEY = 'cancer_form_id';
 
-        // Setup month and year grids
+        let formData = {};
+        let allRecords = [];
+        let currentRecordId = 1;
+
+        // ============ Login System ============
+        function showLoginOverlay(show) {
+            document.getElementById('loginOverlay').style.display = show ? 'flex' : 'none';
+        }
+
+        function doLogin() {
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            if (user === DEFAULT_USER && pass === DEFAULT_PASS) {
+                sessionStorage.setItem('loggedIn', '1');
+                showLoginOverlay(false);
+                alert('ورود موفق');
+            } else {
+                alert('نام کاربری یا رمز عبور اشتباه است');
+            }
+        }
+
+        document.getElementById('loginBtn').addEventListener('click', doLogin);
+        document.getElementById('loginPass').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        // ============ Center Management ============
+        function loadCenters() {
+            const raw = localStorage.getItem('clinical_centers');
+            let centers = [];
+            if (raw) {
+                try { centers = JSON.parse(raw); } catch (e) { centers = []; }
+            }
+            if (!centers || centers.length === 0) {
+                centers = ['مرکز امیرکلا', 'مرکز امام ساری', 'بیمارستان رازی'];
+                localStorage.setItem('clinical_centers', JSON.stringify(centers));
+            }
+            return centers;
+        }
+
+        function renderCenterOptions() {
+            const sel = document.getElementById('centerSelect');
+            sel.innerHTML = '';
+            loadCenters().forEach(c => {
+                const o = document.createElement('option');
+                o.value = c;
+                o.textContent = c;
+                sel.appendChild(o);
+            });
+            const saved = localStorage.getItem('selected_center');
+            if (saved) sel.value = saved;
+        }
+
+        document.getElementById('addCenterBtn').addEventListener('click', function(){
+            const v = document.getElementById('newCenterInput').value.trim();
+            if (!v) return alert('نام مرکز جدید را وارد کنید');
+            const centers = loadCenters();
+            if (!centers.includes(v)) {
+                centers.push(v);
+                localStorage.setItem('clinical_centers', JSON.stringify(centers));
+            }
+            document.getElementById('newCenterInput').value = '';
+            renderCenterOptions();
+        });
+
+        document.getElementById('centerSelect').addEventListener('change', function(){
+            localStorage.setItem('selected_center', this.value);
+            formData.center = this.value;
+        });
+
+        // ============ Counties Data ============
+        const countiesByProvince = {
+            'GIL': ['رشت', 'فومن', 'لاهیجان', 'تالش', 'سیاهکل'],
+            'MAZ': ['ساری', 'بابل', 'آمل', 'قائمشهر', 'نور'],
+            'GOL': ['گرگان', 'گنبد', 'آق‌قلا', 'مینودشت', 'کردکوی']
+        };
+
+        function updateCountyOptions() {
+            const province = Object.keys(formData).find(k => formData[k] === document.querySelector('[data-field="province"].selected')?.dataset.value);
+            const selectedProvince = document.querySelector('[data-field="province"].selected')?.dataset.value;
+            
+            if (!selectedProvince) {
+                document.getElementById('countyGroup').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('countyGroup').style.display = 'block';
+            const counties = countiesByProvince[selectedProvince] || [];
+            const countyContainer = document.getElementById('countyOptions');
+            countyContainer.innerHTML = '';
+            
+            counties.forEach(county => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'option-btn';
+                btn.textContent = county;
+                btn.dataset.field = 'county';
+                btn.dataset.value = county;
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('[data-field="county"]').forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                    formData.county = this.dataset.value;
+                    document.getElementById('countyCustomInput').classList.remove('active');
+                });
+                countyContainer.appendChild(btn);
+            });
+            
+            const otherBtn = document.createElement('button');
+            otherBtn.type = 'button';
+            otherBtn.className = 'option-btn';
+            otherBtn.textContent = 'سایر';
+            otherBtn.dataset.field = 'county';
+            otherBtn.dataset.value = 'OTHER';
+            otherBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('[data-field="county"]').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+                formData.county = 'OTHER';
+                document.getElementById('countyCustomInput').classList.add('active');
+            });
+            countyContainer.appendChild(otherBtn);
+        }
+
+        // ============ Gender-Specific Logic ============
+        function updateFormBasedOnGender() {
+            const genderBtn = document.querySelector('[data-field="gender"].selected');
+            if (!genderBtn) return;
+            
+            const gender = genderBtn.dataset.value;
+            formData.gender = gender;
+
+            // Show/hide gender-specific sections
+            if (gender === 'F') {
+                document.getElementById('cancerWomenSection').classList.add('active');
+                document.getElementById('cancerMenSection').classList.remove('active');
+                document.getElementById('menstruationSection').style.display = 'block';
+                document.getElementById('menshealthSection').style.display = 'none';
+                document.getElementById('femaleHistorySection').style.display = 'block';
+                document.getElementById('birthSection').style.display = 'block';
+                document.getElementById('childrenSection').style.display = 'block';
+            } else if (gender === 'M') {
+                document.getElementById('cancerWomenSection').classList.remove('active');
+                document.getElementById('cancerMenSection').classList.add('active');
+                document.getElementById('menstruationSection').style.display = 'none';
+                document.getElementById('menshealthSection').style.display = 'block';
+                document.getElementById('femaleHistorySection').style.display = 'none';
+                document.getElementById('birthSection').style.display = 'none';
+                document.getElementById('childrenSection').style.display = 'none';
+            }
+        }
+
+        // ============ Questionnaire Mode Logic ============
+        function updateQuestionnaireMode() {
+            const mode = document.getElementById('questionnaireMode').value;
+            formData.mode = mode;
+
+            if (mode === 'primary') {
+                document.getElementById('primaryForm').classList.add('active');
+                document.getElementById('demographicSection').classList.add('active');
+                document.getElementById('cancerSection').classList.add('active');
+                document.getElementById('treatmentSection').classList.add('active');
+                document.getElementById('fertilityHistorySection').classList.add('active');
+                document.getElementById('notesSection').classList.add('active');
+            } else {
+                document.getElementById('primaryForm').classList.remove('active');
+                document.getElementById('demographicSection').classList.remove('active');
+                document.getElementById('cancerSection').classList.remove('active');
+                document.getElementById('treatmentSection').classList.remove('active');
+                document.getElementById('fertilityHistorySection').classList.remove('active');
+                document.getElementById('notesSection').classList.add('active');
+            }
+        }
+
+        // ============ Option Button Handler ============
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('option-btn')) {
+                const field = e.target.dataset.field;
+                const value = e.target.dataset.value;
+                
+                if (!field.includes('custom')) {
+                    e.preventDefault();
+                    document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
+                    e.target.classList.add('selected');
+                    formData[field] = value;
+
+                    if (field === 'gender') {
+                        updateFormBasedOnGender();
+                    }
+
+                    if (field === 'province') {
+                        updateCountyOptions();
+                    }
+
+                    const customInput = document.getElementById(`${field}CustomInput`);
+                    if (customInput) customInput.classList.remove('active');
+                }
+            }
+        });
+
+        // ============ Month and Year Grid ============
         function generateMonths() {
             const container = document.getElementById('monthGrid');
             container.innerHTML = '';
@@ -745,341 +952,134 @@
             }
         }
 
-        // Update UI status
+        // ============ Storage Management ============
+        function loadFromStorage() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                allRecords = JSON.parse(stored);
+                currentRecordId = parseInt(localStorage.getItem(STORAGE_ID_KEY)) || (allRecords.length + 1);
+                updateUI();
+            }
+        }
+
         function updateUI() {
-            document.getElementById('recordCount').textContent = stateManager.getRecordCount();
-            document.getElementById('currentRecordId').textContent = stateManager.getCurrentRecordId();
-            const progress = Math.min((stateManager.getRecordCount() / 100) * 100, 100);
+            document.getElementById('recordCount').textContent = allRecords.length;
+            document.getElementById('currentRecordId').textContent = currentRecordId;
+            const progress = Math.min((allRecords.length / 100) * 100, 100);
             document.getElementById('progressFill').style.width = progress + '%';
-            
-            // Update GitHub status (silent — no UI prompt)
-            if (githubManager && githubManager.isAuthenticated) {
-                document.getElementById('githubStatus').className = 'github-status connected';
-                document.getElementById('githubStatus').textContent = '☁️ متصل به GitHub';
-            } else {
-                document.getElementById('githubStatus').className = 'github-status local';
-                document.getElementById('githubStatus').textContent = '📦 حالت محلی';
-            }
-        }
-        
-
-        // --- Simple local login ---
-        const DEFAULT_USER = 'draghajanidelavar';
-        const DEFAULT_PASS = 'admin';
-
-        function showLoginOverlay(show) {
-            const overlay = document.getElementById('loginOverlay');
-            overlay.style.display = show ? 'flex' : 'none';
         }
 
-        function doLogin() {
-            const user = document.getElementById('loginUser').value.trim();
-            const pass = document.getElementById('loginPass').value;
-            if (user === DEFAULT_USER && pass === DEFAULT_PASS) {
-                sessionStorage.setItem('loggedIn', '1');
-                showLoginOverlay(false);
-                alert('ورود موفق');
-            } else {
-                alert('نام کاربری یا رمز عبور اشتباه است');
-            }
-        }
-
-        document.getElementById('loginBtn').addEventListener('click', doLogin);
-
-        // --- Clinical center management ---
-        function loadCenters() {
-            const raw = localStorage.getItem('clinical_centers');
-            let centers = [];
-            if (raw) {
-                try { centers = JSON.parse(raw); } catch (e) { centers = []; }
-            }
-            if (!centers || centers.length === 0) {
-                centers = ['مرکز امیرکلا', 'مرکز امام ساری'];
-                localStorage.setItem('clinical_centers', JSON.stringify(centers));
-            }
-            return centers;
-        }
-
-        function renderCenterOptions() {
-            const select = document.getElementById('centerSelect');
-            select.innerHTML = '';
-            const centers = loadCenters();
-            centers.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                select.appendChild(opt);
-            });
-
-            const saved = localStorage.getItem('selected_center');
-            if (saved) select.value = saved;
-        }
-
-        document.getElementById('addCenterBtn').addEventListener('click', function() {
-            const v = document.getElementById('newCenterInput').value.trim();
-            if (!v) return alert('نام مرکز جدید را وارد کنید');
-            const centers = loadCenters();
-            if (!centers.includes(v)) {
-                centers.push(v);
-                localStorage.setItem('clinical_centers', JSON.stringify(centers));
-            }
-            document.getElementById('newCenterInput').value = '';
-            renderCenterOptions();
-        });
-
-        document.getElementById('centerSelect').addEventListener('change', function() {
-            localStorage.setItem('selected_center', this.value);
-        });
-
-        // Questionnaire mode toggle
-        document.getElementById('questionnaireMode').addEventListener('change', function() {
-            const val = this.value;
-            localStorage.setItem('questionnaire_mode', val);
-            if (val === 'secondary') {
-                // open questionnaire2
-                window.location.href = 'questionnaire2.html';
-            }
-        });
-
-
-        // Province selector
-        document.querySelectorAll('[data-field="province"]').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const province = this.dataset.value;
-                
-                document.querySelectorAll('[data-field="province"]').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                formData.province = province;
-                
-                const countyGroup = document.getElementById('countyGroup');
-                const countyOptions = document.getElementById('countyOptions');
-                countyOptions.innerHTML = '';
-                
-                if (PROVINCE_DATA[province]) {
-                    PROVINCE_DATA[province].forEach(city => {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'option-btn';
-                        btn.textContent = city;
-                        btn.dataset.field = 'county';
-                        btn.dataset.value = city;
-                        btn.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            document.querySelectorAll('[data-field="county"]').forEach(b => b.classList.remove('selected'));
-                            this.classList.add('selected');
-                            formData.county = city;
-                            
-                            const customInput = document.getElementById('countyCustomInput');
-                            if (city === 'سایر') {
-                                customInput.classList.add('active');
-                                document.getElementById('countyCustom').focus();
-                            } else {
-                                customInput.classList.remove('active');
-                                document.getElementById('countyCustom').value = '';
-                            }
-                        });
-                        countyOptions.appendChild(btn);
-                    });
-                }
-                
-                countyGroup.style.display = 'block';
-                countyGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            });
-        });
-
-        // Gender change
-        document.querySelectorAll('[data-field="gender"]').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const gender = this.dataset.value;
-                
-                document.querySelectorAll('[data-field="gender"]').forEach(b => b.classList.remove('selected'));
-                this.classList.add('selected');
-                formData.gender = gender;
-                
-                const cancerWomenSection = document.getElementById('cancerWomenSection');
-                const cancerMenSection = document.getElementById('cancerMenSection');
-                const historySection = document.getElementById('historySection');
-                
-                document.getElementById('cancerSection').classList.add('active');
-                document.getElementById('treatmentSection').classList.add('active');
-                
-                if (gender === 'M') {
-                    cancerWomenSection.classList.remove('active');
-                    cancerMenSection.classList.add('active');
-                    historySection.classList.remove('active');
-                } else {
-                    cancerWomenSection.classList.add('active');
-                    cancerMenSection.classList.remove('active');
-                    historySection.classList.add('active');
-                }
-                
-                document.querySelectorAll('[data-field="cancerType"]').forEach(b => b.classList.remove('selected'));
-                formData.cancerType = '';
-            });
-        });
-
-        // Setup custom input handlers
-        function setupCustomInputHandlers() {
-            const fields = [
-                'education', 'residence', 'marital', 'cancerType', 'grade', 'stage',
-                'treatment', 'pregnancyCount', 'deliveryCount', 'childrenCount'
-            ];
-
-            fields.forEach(field => {
-                document.querySelectorAll(`[data-field="${field}"]`).forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        document.querySelectorAll(`[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
-                        this.classList.add('selected');
-                        formData[field] = this.dataset.value;
-                        
-                        const customInputId = field + 'CustomInput';
-                        const customInput = document.getElementById(customInputId);
-                        if (customInput) {
-                            if (this.dataset.value === 'OTHER') {
-                                customInput.classList.add('active');
-                                const customField = document.getElementById(field + 'Custom');
-                                if (customField) customField.focus();
-                            } else {
-                                customInput.classList.remove('active');
-                            }
-                        }
-                    });
-                });
-            });
-        }
-
-        // Submit form
-        document.getElementById('submitBtn').addEventListener('click', async () => {
-            const idCode = document.getElementById('identificationCode').value.trim();
-            if (!idCode) {
-                alert('کد شناسایی الزامی است');
+        // ============ CSV Export ============
+        function downloadCSV() {
+            if (allRecords.length === 0) {
+                alert('هیچ رکوردی برای دانلود وجود ندارد');
                 return;
             }
 
-            // Prepare record
-            const record = {
-                'ردیف': stateManager.getCurrentRecordId(),
-                'تاریخ': new Date().toLocaleString('fa-IR'),
-                'کد_شناسایی': idCode,
-                'سن': document.getElementById('age').value || '-',
-                'جنسیت': formData.gender || '-',
-                'استان': formData.province || '-',
-                'شهرستان': formData.county || '-',
-                'تحصیلات': formData.education || '-',
-                'محل_سکونت': formData.residence || '-',
-                'وضعیت_تأهل': formData.marital || '-',
-                'سن_تشخیص': document.getElementById('ageAtDiagnosisCustom').value || '-',
-                'ماه_تشخیص': formData.diagnosisMonth || '-',
-                'سال_تشخیص': formData.diagnosisYear || '-',
-                'نوع_سرطان': formData.cancerType || '-',
-                'درجه': formData.grade || '-',
-                'مرحله': formData.stage || '-',
-                'نوع_درمان': formData.treatment || '-',
-                'بارداری': formData.pregnancyCount || '-',
-                'نکات': document.getElementById('additionalNotes').value || '-'
-            };
+            const headers = ['ردیف', 'تاریخ', 'کد_شناسایی', 'سن', 'جنسیت', 'استان', 'شهرستان', 'تحصیلات', 'محل_سکونت', 'وضعیت_تأهل', 'سن_تشخیص', 'ماه_تشخیص', 'سال_تشخیص', 'نوع_سرطان', 'درجه', 'مرحله', 'نوع_درمان', 'مشاوره_باروری', 'اندیکاسیون_باروری', 'بارداری', 'زایمان', 'فرزند', 'قاعدگی', 'بلوغ', 'پیشگیری', 'نکات', 'مرکز', 'پرسشنامه'];
+            
+            let csvContent = headers.join('\t') + '\r\n';
+            
+            allRecords.forEach((record, index) => {
+                const row = [
+                    index + 1,
+                    record.timestamp || '-',
+                    record.identificationCode || '-',
+                    record.age || '-',
+                    record.gender === 'M' ? 'M' : record.gender === 'F' ? 'F' : '-',
+                    record.province || '-',
+                    record.county || '-',
+                    record.education || '-',
+                    record.residence || '-',
+                    record.marital || '-',
+                    record.ageAtDiagnosis || '-',
+                    record.diagnosisMonth || '-',
+                    record.diagnosisYear || '-',
+                    record.cancerType || '-',
+                    record.grade || '-',
+                    record.stage || '-',
+                    record.treatment || '-',
+                    record.fertilityConsultation || '-',
+                    record.fertilityIndication || '-',
+                    record.pregnancyCount || '-',
+                    record.birthCount || '-',
+                    record.childrenCount || '-',
+                    record.menstruation || record.puberty || '-',
+                    record.puberty || '-',
+                    record.contraception || '-',
+                    record.additionalNotes || '-',
+                    record.center || '-',
+                    record.mode || 'primary'
+                ];
+                csvContent += row.join('\t') + '\r\n';
+            });
 
-            // Add record to state
-            stateManager.addRecord(record);
+            const blob = new Blob([csvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `cancer_data_${new Date().toLocaleDateString('fa-IR')}.tsv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
-            // Try to save to GitHub if authenticated
-            if (githubManager && githubManager.isAuthenticated) {
-                const success = await githubManager.appendToCSV(record, CSV_HEADERS);
-                if (!success) {
-                    console.warn('Failed to save to GitHub, using local storage only');
-                }
-            }
+        // ============ Form Submission ============
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            formData.timestamp = new Date().toLocaleString('fa-IR');
+            formData.identificationCode = document.getElementById('identificationCode').value || '-';
+            formData.age = document.getElementById('age').value || '-';
+            formData.ageAtDiagnosis = document.getElementById('ageAtDiagnosisCustom').value || '-';
+            formData.diagnosisMonth = formData.diagnosisMonth || '-';
+            formData.diagnosisYear = formData.diagnosisYear || '-';
+            formData.additionalNotes = document.getElementById('additionalNotes').value || '-';
+            formData.center = document.getElementById('centerSelect').value || '-';
+            formData.mode = document.getElementById('questionnaireMode').value || 'primary';
+
+            const record = { ...formData, ID: currentRecordId };
+            allRecords.push(record);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(allRecords));
+            localStorage.setItem(STORAGE_ID_KEY, currentRecordId + 1);
+            currentRecordId++;
+
+            // Show success popup
+            const popup = document.getElementById('successPopup');
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 2000);
 
             updateUI();
             resetForm();
-            showSuccess();
-            document.getElementById('identificationCode').focus();
         });
 
-        // Reset form
+        // ============ Form Reset ============
         document.getElementById('resetBtn').addEventListener('click', function() {
             resetForm();
         });
 
         function resetForm() {
-            document.getElementById('mainForm').reset();
             document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            document.querySelectorAll('.custom-input-group').forEach(g => g.classList.remove('active'));
-            document.querySelectorAll('.conditional-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('countyGroup').style.display = 'none';
-            document.getElementById('countyOptions').innerHTML = '';
+            document.getElementById('mainForm').reset();
             formData = {};
             document.getElementById('identificationCode').focus();
         }
 
-        // Download CSV
-        document.getElementById('downloadBtn').addEventListener('click', () => {
-            const records = stateManager.getRecords();
-            if (records.length === 0) {
-                alert('رکوردی برای دانلود نیست');
-                return;
-            }
+        // ============ CSV Download ============
+        document.getElementById('downloadBtn').addEventListener('click', downloadCSV);
 
-            let csvContent = CSV_HEADERS.join(',') + '\n';
-            
-            records.forEach(record => {
-                const row = CSV_HEADERS.map(header => {
-                    let value = record[header] || '-';
-                    if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-                        value = `"${value.replace(/"/g, '""')}"`;
-                    }
-                    return value;
-                }).join(',');
-                csvContent += row + '\n';
-            });
-
-            const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `سرطان_اطلاعات_${Date.now()}.csv`;
-            link.click();
-        });
-
-        // Success popup
-        function showSuccess() {
-            const popup = document.getElementById('successPopup');
-            popup.classList.add('show');
-            setTimeout(() => popup.classList.remove('show'), 2000);
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
+        // ============ Keyboard Shortcuts ============
+        document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
-                e.preventDefault();
                 document.getElementById('submitBtn').click();
             }
             if (e.ctrlKey && e.key === 'r') {
                 e.preventDefault();
-                resetForm();
-            }
-            if (e.ctrlKey && e.key === 'g') {
-                e.preventDefault();
-                toggleAuthSection();
+                document.getElementById('resetBtn').click();
             }
         });
 
-        // Initialize on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            generateMonths();
-            generateYears();
-            setupCustomInputHandlers();
-            updateUI();
-            document.getElementById('identificationCode').focus();
-
-            // initialize centers and questionnaire mode
-            renderCenterOptions();
-            const mode = localStorage.getItem('questionnaire_mode') || 'primary';
-            document.getElementById('questionnaireMode').value = mode;
-
-            // show login if not authenticated locally
+        // ============ Initialization ============
+        window.addEventListener('DOMContentLoaded', function() {
             const loggedIn = sessionStorage.getItem('loggedIn');
             if (!loggedIn) {
                 showLoginOverlay(true);
@@ -1087,12 +1087,12 @@
                 showLoginOverlay(false);
             }
 
-            // Show auth section if no token
-            setTimeout(() => {
-                if (!GITHUB_CONFIG.GITHUB_TOKEN) {
-                    document.getElementById('authSection').classList.add('show');
-                }
-            }, 500);
+            renderCenterOptions();
+            loadFromStorage();
+            generateMonths();
+            generateYears();
+            updateQuestionnaireMode();
+            document.getElementById('questionnaireMode').addEventListener('change', updateQuestionnaireMode);
         });
     </script>
 </body>
