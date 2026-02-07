@@ -1,171 +1,323 @@
-// ============ GitHub Manager (API Integration) ============
+// ============================================
+// GitHub API Manager + State Manager
+// Version: 2.0
+// Purpose: Automatic backup to GitHub + Local Storage Management
+// ============================================
+
 class GitHubManager {
-    constructor(token, owner, repo) {
-        this.token = token;
-        this.owner = owner;
-        this.repo = repo;
-        this.isAuthenticated = !!token;
+    constructor() {
+        this.owner = 'Hadiebrahimiseraji';
+        this.repo = 'cancer';
+        this.branch = 'main';
+        this.token = this.loadToken();
+        this.isConnected = !!this.token;
     }
 
-    async uploadDataToGitHub(records) {
-        if (!this.isAuthenticated) return false;
+    // Load token from localStorage
+    loadToken() {
+        return localStorage.getItem('github_token');
+    }
 
+    // Save token to localStorage
+    saveToken(token) {
+        localStorage.setItem('github_token', token);
+        this.token = token;
+        this.isConnected = true;
+        this.updateStatus();
+    }
+
+    // Remove token
+    removeToken() {
+        localStorage.removeItem('github_token');
+        this.token = null;
+        this.isConnected = false;
+        this.updateStatus();
+    }
+
+    // Update UI status
+    updateStatus() {
+        const statusEl = document.getElementById('githubStatus');
+        if (!statusEl) return;
+
+        if (this.isConnected) {
+            statusEl.className = 'github-status connected';
+            statusEl.innerHTML = '✅ GitHub متصل';
+        } else {
+            statusEl.className = 'github-status local';
+            statusEl.innerHTML = '📦 حالت محلی';
+        }
+    }
+
+    // Get file SHA (needed for updates)
+    async getFileSHA(path) {
         try {
-            const timestamp = new Date().toISOString().split('T')[0];
-            const filename = `data_backup_${timestamp}.json`;
-            const content = JSON.stringify(records, null, 2);
-            const encoded = btoa(unescape(encodeURIComponent(content)));
-
             const response = await fetch(
-                `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${filename}`,
+                `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}?ref=${this.branch}`,
                 {
-                    method: 'PUT',
                     headers: {
-                        'Authorization': `token ${this.token}`,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: `Auto-backup: ${records.length} records at ${new Date().toLocaleString('fa-IR')}`,
-                        content: encoded,
-                        branch: 'main'
-                    })
+                        'Authorization': `Bearer ${this.token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
                 }
             );
 
-            return response.ok;
+            if (response.ok) {
+                const data = await response.json();
+                return data.sha;
+            }
+            return null;
+        } catch (error) {
+            console.error('Error getting file SHA:', error);
+            return null;
+        }
+    }
+
+    // Upload data to GitHub
+    async uploadToGitHub(data, filename = null) {
+        if (!this.isConnected) {
+            throw new Error('GitHub token not configured');
+        }
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        const path = filename || `data/backup_${timestamp}.json`;
+        
+        // Get existing file SHA if it exists
+        const sha = await this.getFileSHA(path);
+
+        // Prepare content
+        const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+        // Create commit message
+        const message = `Auto backup: ${new Date().toLocaleString('fa-IR')} - ${data.length} records`;
+
+        // API request
+        const body = {
+            message: message,
+            content: content,
+            branch: this.branch
+        };
+
+        if (sha) {
+            body.sha = sha;
+        }
+
+        try {
+            const response = await fetch(
+                `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${path}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${this.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                }
+            );
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Upload failed');
+            }
+
+            const result = await response.json();
+            return {
+                success: true,
+                url: result.content.html_url,
+                path: path
+            };
         } catch (error) {
             console.error('GitHub upload error:', error);
-            return false;
+            throw error;
+        }
+    }
+
+    // Auto-save to GitHub on every record save
+    async autoBackup(records) {
+        if (!this.isConnected) return;
+
+        try {
+            await this.uploadToGitHub(records, 'data/latest_backup.json');
+            console.log('✅ Auto-backup successful');
+        } catch (error) {
+            console.warn('⚠️ Auto-backup failed:', error.message);
         }
     }
 }
 
-// ============ State Manager ============
+// ============================================
+// State Manager
+// ============================================
+
 class StateManager {
-    constructor(storageKey) {
-        this.storageKey = storageKey;
-        this.idKey = `${storageKey}_id`;
-        this.load();
+    constructor() {
+        this.STORAGE_KEY = 'cancer_form_records';
+        this.STORAGE_ID_KEY = 'cancer_form_id';
+        this.records = this.loadRecords();
+        this.currentId = this.loadCurrentId();
     }
 
-    load() {
-        const stored = localStorage.getItem(this.storageKey);
-        this.records = stored ? JSON.parse(stored) : [];
-        this.currentId = parseInt(localStorage.getItem(this.idKey)) || 1;
+    // Load records from localStorage
+    loadRecords() {
+        const stored = localStorage.getItem(this.STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
     }
 
-    save() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.records));
-        localStorage.setItem(this.idKey, this.currentId.toString());
+    // Load current ID
+    loadCurrentId() {
+        const stored = localStorage.getItem(this.STORAGE_ID_KEY);
+        return stored ? parseInt(stored) : 1;
     }
 
+    // Save records to localStorage
+    saveRecords() {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.records));
+        localStorage.setItem(this.STORAGE_ID_KEY, this.currentId.toString());
+    }
+
+    // Add new record
     addRecord(record) {
         record.ID = this.currentId;
+        record.timestamp = new Date().toLocaleString('fa-IR');
         this.records.push(record);
         this.currentId++;
-        this.save();
+        this.saveRecords();
         return record;
     }
 
-    getRecords() {
+    // Get all records
+    getAllRecords() {
         return this.records;
     }
 
+    // Clear all records
+    clearRecords() {
+        this.records = [];
+        this.currentId = 1;
+        this.saveRecords();
+    }
+
+    // Get record count
     getRecordCount() {
         return this.records.length;
     }
-
-    getCurrentRecordId() {
-        return this.currentId;
-    }
-
-    exportCSV(headers) {
-        if (this.records.length === 0) return null;
-
-        let csvContent = headers.join('\t') + '\r\n';
-        this.records.forEach((record, index) => {
-            const row = [];
-            headers.forEach(header => {
-                const key = header.replace(/[\s-]/g, '_').toLowerCase();
-                row.push(record[key] || '-');
-            });
-            csvContent += row.join('\t') + '\r\n';
-        });
-
-        return csvContent;
-    }
 }
 
-// ============ Global Instances ============
-let stateManager;
-let githubManager;
+// ============================================
+// Global instances
+// ============================================
 
-// ============ Initialization ============
-function initializeApp() {
-    stateManager = new StateManager('cancer_form_records');
-    
-    // Try to load GitHub token from localStorage if available
-    const githubToken = localStorage.getItem('github_token');
-    if (githubToken) {
-        githubManager = new GitHubManager(
-            githubToken,
-            'Hadiebrahimiseraji',
-            'cancer'
-        );
-    }
+const githubManager = new GitHubManager();
+const stateManager = new StateManager();
+
+// ============================================
+// Utility Functions
+// ============================================
+
+// Show notification
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${type === 'success' ? '#4caf50' : '#f44336'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 9999;
+        font-weight: bold;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
-// ============ Keyboard Shortcuts ============
-function setupKeyboardShortcuts() {
-    document.addEventListener('keydown', function(e) {
-        // Ctrl+Enter: Submit form
-        if (e.ctrlKey && e.key === 'Enter') {
-            const submitBtn = document.getElementById('submitBtn');
-            if (submitBtn) submitBtn.click();
-        }
-        // Ctrl+R: Reset form
-        if (e.ctrlKey && e.key === 'r') {
-            e.preventDefault();
-            const resetBtn = document.getElementById('resetBtn');
-            if (resetBtn) resetBtn.click();
-        }
-        // Ctrl+S: Save to GitHub
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            if (githubManager && githubManager.isAuthenticated) {
-                uploadToGitHub();
-            }
+// GitHub token setup dialog
+function showTokenDialog() {
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        direction: rtl;
+    `;
+
+    dialog.innerHTML = `
+        <div style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%;">
+            <h3 style="margin-bottom: 15px; color: #333;">🔐 تنظیم GitHub Token</h3>
+            <p style="margin-bottom: 15px; color: #666; font-size: 0.95em;">
+                برای فعال‌سازی بکاپ خودکار، توکن GitHub خود را وارد کنید.
+            </p>
+            <input type="password" id="tokenInput" placeholder="github_pat_..." 
+                   style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 15px; font-size: 0.9em;">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="tokenCancel" style="padding: 10px 20px; border: none; background: #f5f5f5; border-radius: 8px; cursor: pointer;">
+                    انصراف
+                </button>
+                <button id="tokenSave" style="padding: 10px 20px; border: none; background: #4caf50; color: white; border-radius: 8px; cursor: pointer;">
+                    ذخیره
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    document.getElementById('tokenCancel').addEventListener('click', () => dialog.remove());
+    document.getElementById('tokenSave').addEventListener('click', () => {
+        const token = document.getElementById('tokenInput').value.trim();
+        if (token) {
+            githubManager.saveToken(token);
+            showNotification('✅ توکن ذخیره شد');
+            dialog.remove();
+        } else {
+            showNotification('❌ توکن نامعتبر است', 'error');
         }
     });
 }
 
-// ============ GitHub Upload Function ============
-async function uploadToGitHub() {
-    if (!githubManager || !githubManager.isAuthenticated) {
-        alert('GitHub Token not configured');
-        return;
-    }
+// ============================================
+// Export functions for external use
+// ============================================
 
-    const loading = document.createElement('div');
-    loading.textContent = 'Uploading to GitHub...';
-    loading.style.cssText = 'position:fixed;top:20px;right:20px;background:#2196f3;color:white;padding:15px 20px;border-radius:8px;z-index:999;';
-    document.body.appendChild(loading);
+window.githubManager = githubManager;
+window.stateManager = stateManager;
+window.showNotification = showNotification;
+window.showTokenDialog = showTokenDialog;
 
-    const success = await githubManager.uploadDataToGitHub(stateManager.getRecords());
+// ============================================
+// Auto-initialization
+// ============================================
+
+window.addEventListener('DOMContentLoaded', () => {
+    githubManager.updateStatus();
     
-    if (success) {
-        loading.textContent = '✓ Uploaded to GitHub';
-        loading.style.background = '#4caf50';
-    } else {
-        loading.textContent = '✗ Upload failed';
-        loading.style.background = '#f44336';
-    }
+    // Add keyboard shortcut for GitHub upload (Ctrl+S)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            if (githubManager.isConnected) {
+                const records = stateManager.getAllRecords();
+                githubManager.uploadToGitHub(records)
+                    .then(() => showNotification('✅ آپلود به GitHub موفق بود'))
+                    .catch(err => showNotification(`❌ خطا: ${err.message}`, 'error'));
+            } else {
+                showTokenDialog();
+            }
+        }
+    });
 
-    setTimeout(() => loading.remove(), 3000);
-}
-
-// ============ Setup on Load ============
-window.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-    setupKeyboardShortcuts();
+    console.log('✅ GitHub Manager initialized');
+    console.log('📊 Records loaded:', stateManager.getRecordCount());
 });
