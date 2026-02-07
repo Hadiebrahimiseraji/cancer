@@ -1,223 +1,171 @@
-/**
- * GitHub API Handler
- * Manages data persistence to GitHub repository
- */
-
+// ============ GitHub Manager (API Integration) ============
 class GitHubManager {
-  constructor(config) {
-    this.config = config;
-    this.isAuthenticated = !!config.GITHUB_TOKEN;
-  }
-
-  /**
-   * Get file content from GitHub
-   */
-  async getFileContent(path) {
-    if (!this.isAuthenticated) {
-      console.warn('Not authenticated. Using local storage.');
-      return null;
+    constructor(token, owner, repo) {
+        this.token = token;
+        this.owner = owner;
+        this.repo = repo;
+        this.isAuthenticated = !!token;
     }
 
-    try {
-      const response = await fetch(
-        `https://api.github.com/repos/${this.config.GITHUB_OWNER}/${this.config.GITHUB_REPO}/contents/${path}`,
-        {
-          headers: {
-            'Authorization': `token ${this.config.GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+raw'
-          }
+    async uploadDataToGitHub(records) {
+        if (!this.isAuthenticated) return false;
+
+        try {
+            const timestamp = new Date().toISOString().split('T')[0];
+            const filename = `data_backup_${timestamp}.json`;
+            const content = JSON.stringify(records, null, 2);
+            const encoded = btoa(unescape(encodeURIComponent(content)));
+
+            const response = await fetch(
+                `https://api.github.com/repos/${this.owner}/${this.repo}/contents/${filename}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${this.token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: `Auto-backup: ${records.length} records at ${new Date().toLocaleString('fa-IR')}`,
+                        content: encoded,
+                        branch: 'main'
+                    })
+                }
+            );
+
+            return response.ok;
+        } catch (error) {
+            console.error('GitHub upload error:', error);
+            return false;
         }
-      );
-
-      if (response.status === 404) {
-        return null; // File doesn't exist
-      }
-
-      if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
-      }
-
-      return await response.text();
-    } catch (error) {
-      console.error('Error fetching file:', error);
-      return null;
     }
-  }
-
-  /**
-   * Get file SHA (needed for updates)
-   */
-  async getFileSHA(path) {
-    if (!this.isAuthenticated) return null;
-
-    try {
-      const response = await fetch(
-        `https://api.github.com/repos/${this.config.GITHUB_OWNER}/${this.config.GITHUB_REPO}/contents/${path}`,
-        {
-          headers: {
-            'Authorization': `token ${this.config.GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        }
-      );
-
-      if (response.status === 404) {
-        return null;
-      }
-
-      const data = await response.json();
-      return data.sha;
-    } catch (error) {
-      console.error('Error getting file SHA:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Save or update file in GitHub
-   */
-  async saveFile(path, content, message) {
-    if (!this.isAuthenticated) {
-      console.error('Not authenticated. Cannot save to GitHub.');
-      return false;
-    }
-
-    try {
-      const sha = await this.getFileSHA(path);
-      const encodedContent = btoa(unescape(encodeURIComponent(content)));
-
-      const payload = {
-        message: message,
-        content: encodedContent,
-        branch: this.config.GITHUB_BRANCH
-      };
-
-      if (sha) {
-        payload.sha = sha;
-      }
-
-      const response = await fetch(
-        `https://api.github.com/repos/${this.config.GITHUB_OWNER}/${this.config.GITHUB_REPO}/contents/${path}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Authorization': `token ${this.config.GITHUB_TOKEN}`,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        }
-      );
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message);
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error saving file:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Append row to CSV
-   */
-  async appendToCSV(rowData, headers) {
-    let csvContent = await this.getFileContent(this.config.DATA_FILE_PATH);
-
-    if (!csvContent) {
-      // Create new file with headers
-      const headerRow = headers.join(',') + '\n';
-      csvContent = headerRow;
-    }
-
-    // Convert row data to CSV format
-    const row = headers.map(header => {
-      let value = rowData[header] || '-';
-      // Escape quotes and wrap in quotes if contains comma
-      if (typeof value === 'string') {
-        value = value.replace(/"/g, '""');
-        if (value.includes(',') || value.includes('\n')) {
-          value = `"${value}"`;
-        }
-      }
-      return value;
-    }).join(',') + '\n';
-
-    csvContent += row;
-
-    const message = `افزودن رکورد جدید: ${rowData['کد_شناسایی']} - ${rowData['تاریخ']}`;
-    return await this.saveFile(this.config.DATA_FILE_PATH, csvContent, message);
-  }
 }
 
-/**
- * Application State Manager
- */
+// ============ State Manager ============
 class StateManager {
-  constructor() {
-    this.records = [];
-    this.currentRecordId = 1;
-    this.loadFromStorage();
-  }
-
-  loadFromStorage() {
-    const stored = localStorage.getItem('cancer_questionnaire_records');
-    if (stored) {
-      try {
-        this.records = JSON.parse(stored);
-        this.currentRecordId = parseInt(localStorage.getItem('cancer_current_id')) || (this.records.length + 1);
-      } catch (e) {
-        console.warn('Failed to load from storage', e);
-      }
+    constructor(storageKey) {
+        this.storageKey = storageKey;
+        this.idKey = `${storageKey}_id`;
+        this.load();
     }
-  }
 
-  saveToStorage() {
-    localStorage.setItem('cancer_questionnaire_records', JSON.stringify(this.records));
-    localStorage.setItem('cancer_current_id', this.currentRecordId);
-  }
+    load() {
+        const stored = localStorage.getItem(this.storageKey);
+        this.records = stored ? JSON.parse(stored) : [];
+        this.currentId = parseInt(localStorage.getItem(this.idKey)) || 1;
+    }
 
-  addRecord(record) {
-    record.ID = this.currentRecordId;
-    this.records.push(record);
-    this.currentRecordId++;
-    this.saveToStorage();
-    return record;
-  }
+    save() {
+        localStorage.setItem(this.storageKey, JSON.stringify(this.records));
+        localStorage.setItem(this.idKey, this.currentId.toString());
+    }
 
-  getRecords() {
-    return this.records;
-  }
+    addRecord(record) {
+        record.ID = this.currentId;
+        this.records.push(record);
+        this.currentId++;
+        this.save();
+        return record;
+    }
 
-  getCurrentRecordId() {
-    return this.currentRecordId;
-  }
+    getRecords() {
+        return this.records;
+    }
 
-  getRecordCount() {
-    return this.records.length;
-  }
+    getRecordCount() {
+        return this.records.length;
+    }
+
+    getCurrentRecordId() {
+        return this.currentId;
+    }
+
+    exportCSV(headers) {
+        if (this.records.length === 0) return null;
+
+        let csvContent = headers.join('\t') + '\r\n';
+        this.records.forEach((record, index) => {
+            const row = [];
+            headers.forEach(header => {
+                const key = header.replace(/[\s-]/g, '_').toLowerCase();
+                row.push(record[key] || '-');
+            });
+            csvContent += row.join('\t') + '\r\n';
+        });
+
+        return csvContent;
+    }
 }
 
-// Initialize managers globally
-let stateManager = new StateManager();
-let githubManager = null;
+// ============ Global Instances ============
+let stateManager;
+let githubManager;
 
-// Initialize GitHub manager when token is available
-function initGitHubManager() {
-  if (typeof GITHUB_CONFIG !== 'undefined') {
-    githubManager = new GitHubManager(GITHUB_CONFIG);
-    if (githubManager.isAuthenticated) {
-      console.log('✓ GitHub manager initialized');
+// ============ Initialization ============
+function initializeApp() {
+    stateManager = new StateManager('cancer_form_records');
+    
+    // Try to load GitHub token from localStorage if available
+    const githubToken = localStorage.getItem('github_token');
+    if (githubToken) {
+        githubManager = new GitHubManager(
+            githubToken,
+            'Hadiebrahimiseraji',
+            'cancer'
+        );
+    }
+}
+
+// ============ Keyboard Shortcuts ============
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+Enter: Submit form
+        if (e.ctrlKey && e.key === 'Enter') {
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) submitBtn.click();
+        }
+        // Ctrl+R: Reset form
+        if (e.ctrlKey && e.key === 'r') {
+            e.preventDefault();
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.click();
+        }
+        // Ctrl+S: Save to GitHub
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            if (githubManager && githubManager.isAuthenticated) {
+                uploadToGitHub();
+            }
+        }
+    });
+}
+
+// ============ GitHub Upload Function ============
+async function uploadToGitHub() {
+    if (!githubManager || !githubManager.isAuthenticated) {
+        alert('GitHub Token not configured');
+        return;
+    }
+
+    const loading = document.createElement('div');
+    loading.textContent = 'Uploading to GitHub...';
+    loading.style.cssText = 'position:fixed;top:20px;right:20px;background:#2196f3;color:white;padding:15px 20px;border-radius:8px;z-index:999;';
+    document.body.appendChild(loading);
+
+    const success = await githubManager.uploadDataToGitHub(stateManager.getRecords());
+    
+    if (success) {
+        loading.textContent = '✓ Uploaded to GitHub';
+        loading.style.background = '#4caf50';
     } else {
-      console.log('ℹ️ Using local storage only (GitHub token not set)');
+        loading.textContent = '✗ Upload failed';
+        loading.style.background = '#f44336';
     }
-  }
+
+    setTimeout(() => loading.remove(), 3000);
 }
 
-// Call on script load
-window.addEventListener('DOMContentLoaded', () => {
-  initGitHubManager();
+// ============ Setup on Load ============
+window.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+    setupKeyboardShortcuts();
 });
