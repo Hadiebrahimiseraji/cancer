@@ -383,6 +383,15 @@
             .btn { min-width: auto; }
             .nested-input { grid-template-columns: 1fr; }
         }
+        /* Hide helper/banner texts that operators don't need to see */
+        .header-subtitle,
+        .info-message,
+        .notes-section,
+        .github-status.local,
+        .local-mode,
+        .app-banner {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -665,89 +674,240 @@
                 </div>
             </div>
 
-            <!-- اطلاعات پرسشنامه دوم -->
+            <!-- اطلاعات پرسشنامه دوم (بازنویسی‌شده: Q0..QC4) -->
             <div id="secondaryQuestionnaire" class="conditional-section">
                 <div class="secondary-info">
-                    🏥 <strong>پرسشنامه دوم - پزشکی</strong><br>
-                    این فرم برای جمع‌آوری اطلاعات طبی و سرطان‌شناسی است
+                    🏥 <strong>پرسشنامه دوم - پزشکی</strong>
                 </div>
 
-                <div class="section">
-                    <h2><span class="section-number">1</span>اطلاعات پایه</h2>
-                    <div class="question-group">
-                        <label class="question-label">کد بیمار <span class="question-code">PATIENT_ID</span></label>
-                        <input type="text" id="patientId" placeholder="شماره پرونده">
-                    </div>
-                    <div class="question-group">
-                        <label class="question-label">سن <span class="question-code">AGE</span></label>
-                        <input type="number" id="secondaryAge" min="1" max="120" placeholder="سن بیمار">
-                    </div>
-                    <div class="question-group">
-                        <label class="question-label">جنسیت <span class="question-code">GENDER</span></label>
-                        <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="secondaryGender" data-value="M">مرد</button>
-                            <button type="button" class="option-btn" data-field="secondaryGender" data-value="F">زن</button>
-                        </div>
-                    </div>
+                <div class="section" id="section-0-sec">
+                    <h2>Section 0 — اطلاعات شناسایی</h2>
+                    <label class="question-label">کد شناسایی <span class="question-code">Q0</span></label>
+                    <input type="text" id="q0_code" placeholder="کد شناسایی" required>
+                    <label class="question-label">سن <span class="question-code">Q0_AGE</span></label>
+                    <input type="number" id="q0_age" min="1" max="120" placeholder="سن" required>
                 </div>
 
-                <div class="section">
-                    <h2><span class="section-number">2</span>اطلاعات سرطان</h2>
-                    <div class="question-group">
-                        <label class="question-label">نوع سرطان <span class="question-code">CANCER_TYPE</span></label>
-                        <input type="text" id="secondaryCancerType" placeholder="مثال: سرطان پستان، لوسمی">
+                <div class="section" id="section-1-sec">
+                    <h2>Section 1</h2>
+                    <label class="question-label">سوال 1 <span class="question-code">Q1</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="q1" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="q1" data-value="2">2</button>
                     </div>
-                    <div class="question-group">
-                        <label class="question-label">مرحله بیماری <span class="question-code">STAGE</span></label>
-                        <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="secondaryStage" data-value="1">مرحله I</button>
-                            <button type="button" class="option-btn" data-field="secondaryStage" data-value="2">مرحله II</button>
-                            <button type="button" class="option-btn" data-field="secondaryStage" data-value="3">مرحله III</button>
-                            <button type="button" class="option-btn" data-field="secondaryStage" data-value="4">مرحله IV</button>
-                        </div>
-                    </div>
-                    <div class="question-group">
-                        <label class="question-label">تاریخ تشخیص <span class="question-code">DIAGNOSIS_DATE</span></label>
-                        <input type="date" id="secondaryDiagnosisDate">
+
+                    <label class="question-label">سوال 2 <span class="question-code">Q2</span></label>
+                    <div class="options-grid" style="grid-template-columns:repeat(5,1fr);">
+                        <button type="button" class="option-btn" data-field="q2" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="3">3</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="4">4</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="5">5</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="6">6</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="7">7</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="8">8</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="9">9</button>
                     </div>
                 </div>
 
-                <div class="section">
-                    <h2><span class="section-number">3</span>نوع درمان</h2>
-                    <div class="question-group">
-                        <label class="question-label">درمان‌های دریافتی <span class="question-code">TREATMENT</span></label>
-                        <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="secondaryTreatment" data-value="chemo">شیمی‌درمانی</button>
-                            <button type="button" class="option-btn" data-field="secondaryTreatment" data-value="radio">رادیوتراپی</button>
-                            <button type="button" class="option-btn" data-field="secondaryTreatment" data-value="surgery">جراحی</button>
-                            <button type="button" class="option-btn" data-field="secondaryTreatment" data-value="targeted">درمان هدفگردان</button>
-                            <button type="button" class="option-btn" data-field="secondaryTreatment" data-value="immunotherapy">ایمونوتراپی</button>
-                        </div>
+                <div class="section" id="section-k-sec">
+                    <h2>Section K</h2>
+                    <label class="question-label">K1 <span class="question-code">QK1</span></label>
+                    <input type="text" id="qk1" placeholder="...">
+
+                    <label class="question-label">K2 <span class="question-code">QK2</span></label>
+                    <input type="text" id="qk2" placeholder="...">
+
+                    <label class="question-label">K3 <span class="question-code">QK3</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk3" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk3" data-value="2">2</button>
                     </div>
-                    <div class="question-group">
-                        <label class="question-label">وضعیت درمان <span class="question-code">TREATMENT_STATUS</span></label>
+
+                    <label class="question-label">K4 <span class="question-code">QK4</span></label>
+                    <input type="text" id="qk4" placeholder="...">
+
+                    <label class="question-label">K5 <span class="question-code">QK5</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk5" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk5" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K6 <span class="question-code">QK6</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk6" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk6" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K7 <span class="question-code">QK7</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk7" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk7" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K8 <span class="question-code">QK8</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk8" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk8" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K9 <span class="question-code">QK9</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk9" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk9" data-value="2">2</button>
+                    </div>
+                </div>
+
+                <div class="section" id="section-a-sec">
+                    <h2>Section A</h2>
+                    <label class="question-label">A1 <span class="question-code">QA1</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa1" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa1" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa1" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A2 <span class="question-code">QA2</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa2" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa2" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa2" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A3 <span class="question-code">QA3</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa3" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa3" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa3" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A4 <span class="question-code">QA4</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa4" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa4" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa4" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A5 <span class="question-code">QA5</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa5" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa5" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa5" data-value="3">3</button>
+                    </div>
+                </div>
+
+                <div class="section" id="section-b-sec">
+                    <h2>Section B</h2>
+                    <!-- B1..B8 each 1..5 -->
+                    <div>
+                        <!-- B1..B8 -->
+                        <label class="question-label">B1 <span class="question-code">QB1</span></label>
                         <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="treatmentStatus" data-value="ongoing">در حال درمان</button>
-                            <button type="button" class="option-btn" data-field="treatmentStatus" data-value="completed">تکمیل شده</button>
-                            <button type="button" class="option-btn" data-field="treatmentStatus" data-value="suspended">معلق</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B2 <span class="question-code">QB2</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb2" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B3 <span class="question-code">QB3</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb3" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B4 <span class="question-code">QB4</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb4" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B5 <span class="question-code">QB5</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb5" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B6 <span class="question-code">QB6</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb6" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B7 <span class="question-code">QB7</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb7" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B8 <span class="question-code">QB8</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb8" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="5">5</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="section">
-                    <h2><span class="section-number">4</span>پیگیری و اثرات جانبی</h2>
-                    <div class="question-group">
-                        <label class="question-label">وضعیت بیمار <span class="question-code">PATIENT_STATUS</span></label>
-                        <div class="options-grid">
-                            <button type="button" class="option-btn" data-field="patientStatus" data-value="alive_disease_free">زنده - بدون بیماری</button>
-                            <button type="button" class="option-btn" data-field="patientStatus" data-value="alive_with_disease">زنده - با بیماری</button>
-                            <button type="button" class="option-btn" data-field="patientStatus" data-value="deceased">فوت‌شده</button>
-                            <button type="button" class="option-btn" data-field="patientStatus" data-value="unknown">نامعلوم</button>
-                        </div>
+                <div class="section" id="section-c-sec">
+                    <h2>Section C</h2>
+                    <label class="question-label">سوال 1 <span class="question-code">QC1</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qc1" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qc1" data-value="2">2</button>
                     </div>
-                    <div class="question-group">
-                        <label class="question-label">اثرات جانبی قابل‌توجه <span class="question-code">SIDE_EFFECTS</span></label>
-                        <input type="text" id="sideEffects" placeholder="اثرات جانبی را شرح دهید">
+
+                    <label class="question-label">سوال 2 — چند انتخابی <span class="question-code">QC2</span></label>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <label><input type="checkbox" name="qc2" value="1"> 1</label>
+                        <label><input type="checkbox" name="qc2" value="2"> 2</label>
+                        <label><input type="checkbox" name="qc2" value="3"> 3</label>
+                        <label><input type="checkbox" name="qc2" value="4"> 4</label>
+                        <label><input type="checkbox" name="qc2" value="5"> 5</label>
+                        <label><input type="checkbox" name="qc2" value="6"> 6</label>
+                        <label><input type="checkbox" name="qc2" value="7"> 7</label>
+                        <label><input type="checkbox" name="qc2" value="8"> 8</label>
+                        <label><input type="checkbox" name="qc2" value="9"> 9</label>
+                        <label><input type="checkbox" name="qc2" value="10"> 10</label>
+                        <label><input type="checkbox" name="qc2" value="11"> 11</label>
+                        <label><input type="checkbox" name="qc2" value="12"> 12</label>
+                    </div>
+
+                    <label class="question-label">سوال 3 <span class="question-code">QC3</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qc3" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qc3" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">سوال 4 — چند انتخابی <span class="question-code">QC4</span></label>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <label><input type="checkbox" name="qc4" value="1"> 1</label>
+                        <label><input type="checkbox" name="qc4" value="2"> 2</label>
+                        <label><input type="checkbox" name="qc4" value="3"> 3</label>
+                        <label><input type="checkbox" name="qc4" value="4"> 4</label>
+                        <label><input type="checkbox" name="qc4" value="5"> 5</label>
+                        <label><input type="checkbox" name="qc4" value="6"> 6</label>
+                        <label><input type="checkbox" name="qc4" value="7"> 7</label>
+                        <label><input type="checkbox" name="qc4" value="8"> 8</label>
+                        <label><input type="checkbox" name="qc4" value="9"> 9</label>
+                        <label><input type="checkbox" name="qc4" value="10"> 10</label>
+                        <label><input type="checkbox" name="qc4" value="11"> 11</label>
+                        <label><input type="checkbox" name="qc4" value="12"> 12</label>
                     </div>
                 </div>
             </div>
@@ -900,35 +1060,73 @@
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
+        // Handle multi-select checkboxes for qc2 and qc4
+        function setupCheckboxHandlers() {
+            ['qc2','qc4'].forEach(name => {
+                const inputs = Array.from(document.querySelectorAll(`input[name="${name}"]`));
+                if (!inputs.length) return;
+                const update = () => {
+                    const vals = inputs.filter(i => i.checked).map(i => i.value);
+                    formData[name] = vals;
+                };
+                inputs.forEach(i => i.addEventListener('change', update));
+                update();
+            });
+        }
+
         function downloadCSV() {
             if (allRecords.length === 0) {
                 alert('هیچ رکوردی برای دانلود وجود ندارد');
                 return;
             }
 
-            const headers = ['ردیف', 'تاریخ', 'پرسشنامه', 'کد_بیمار', 'سن', 'جنسیت', 'تحصیلات', 'محل_سکونت', 'سن_تشخیص', 'نوع_سرطان', 'مرحله', 'نوع_درمان', 'باروری', 'یادداشت‌ها'];
-            
-            let csvContent = '\uFEFF' + headers.join('\t') + '\r\n';
-            
-            allRecords.forEach((record, index) => {
-                const row = [
-                    index + 1,
-                    record.timestamp || '-',
-                    record.questionnaire_type || '-',
-                    record.identificationCode || record.patientId || '-',
-                    record.age || record.secondaryAge || '-',
-                    record.gender || record.secondaryGender || '-',
-                    record.education || '-',
-                    record.residence || '-',
-                    record.ageAtDiagnosis || '-',
-                    record.cancerType || record.secondaryCancerType || '-',
-                    record.stage || record.secondaryStage || '-',
-                    record.treatment || record.secondaryTreatment || '-',
-                    record.pregnancyCount || record.puberty || '-',
-                    record.additionalNotes || '-'
+            // If records are secondary (have q1), export in the Q-schema, otherwise fall back to legacy format
+            const hasSecondary = allRecords.some(r => typeof r.q1 !== 'undefined');
+            let csvContent = '';
+            if (hasSecondary) {
+                const headers = [
+                    'ID','timestamp','code','age',
+                    'Q1','Q2',
+                    'QK1','QK2','QK3','QK4','QK5','QK6','QK7','QK8','QK9',
+                    'QA1','QA2','QA3','QA4','QA5',
+                    'QB1','QB2','QB3','QB4','QB5','QB6','QB7','QB8',
+                    'QC1','QC2','QC3','QC4'
                 ];
-                csvContent += row.join('\t') + '\r\n';
-            });
+                csvContent = '\uFEFF' + headers.join('\t') + '\r\n';
+                allRecords.forEach(r => {
+                    const row = [
+                        r.ID || '-', r.timestamp || '-', r.code || '-', r.age || '-',
+                        r.q1 || '-', r.q2 || '-',
+                        r.k1 || '-', r.k2 || '-', r.k3 || '-', r.k4 || '-', r.k5 || '-', r.k6 || '-', r.k7 || '-', r.k8 || '-', r.k9 || '-',
+                        r.a1 || '-', r.a2 || '-', r.a3 || '-', r.a4 || '-', r.a5 || '-',
+                        r.b1 || '-', r.b2 || '-', r.b3 || '-', r.b4 || '-', r.b5 || '-', r.b6 || '-', r.b7 || '-', r.b8 || '-',
+                        r.qc1 || '-', r.qc2 || '-', r.qc3 || '-', r.qc4 || '-'
+                    ];
+                    csvContent += row.join('\t') + '\r\n';
+                });
+            } else {
+                const headers = ['ردیف', 'تاریخ', 'پرسشنامه', 'کد_بیمار', 'سن', 'جنسیت', 'تحصیلات', 'محل_سکونت', 'سن_تشخیص', 'نوع_سرطان', 'مرحله', 'نوع_درمان', 'باروری', 'یادداشت‌ها'];
+                csvContent = '\uFEFF' + headers.join('\t') + '\r\n';
+                allRecords.forEach((record, index) => {
+                    const row = [
+                        index + 1,
+                        record.timestamp || '-',
+                        record.questionnaire_type || '-',
+                        record.identificationCode || record.patientId || '-',
+                        record.age || record.secondaryAge || '-',
+                        record.gender || record.secondaryGender || '-',
+                        record.education || '-',
+                        record.residence || '-',
+                        record.ageAtDiagnosis || '-',
+                        record.cancerType || record.secondaryCancerType || '-',
+                        record.stage || record.secondaryStage || '-',
+                        record.treatment || record.secondaryTreatment || '-',
+                        record.pregnancyCount || record.puberty || '-',
+                        record.additionalNotes || '-'
+                    ];
+                    csvContent += row.join('\t') + '\r\n';
+                });
+            }
 
             const blob = new Blob([csvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
             const link = document.createElement('a');
@@ -953,11 +1151,67 @@
                 formData.diagnosisYear = document.getElementById('diagnosisYear').value || '-';
                 formData.fertilityIndication = document.getElementById('fertilityIndication').value || '-';
             } else if (formData.questionnaire_type === 'secondary') {
-                formData.patientId = document.getElementById('patientId').value || '-';
-                formData.secondaryAge = document.getElementById('secondaryAge').value || '-';
-                formData.secondaryCancerType = document.getElementById('secondaryCancerType').value || '-';
-                formData.secondaryDiagnosisDate = document.getElementById('secondaryDiagnosisDate').value || '-';
-                formData.sideEffects = document.getElementById('sideEffects').value || '-';
+                // Build a clean secondary record following Q0..QC4 schema
+                const fs = formData || {};
+                const record = {
+                    ID: currentRecordId,
+                    timestamp: new Date().toLocaleString('fa-IR'),
+                    questionnaire_type: 'secondary',
+                    code: (document.getElementById('q0_code') && document.getElementById('q0_code').value.trim()) || '-',
+                    age: (document.getElementById('q0_age') && document.getElementById('q0_age').value) || '-',
+
+                    q1: fs.q1 || '-',
+                    q2: fs.q2 || '-',
+
+                    k1: (document.getElementById('qk1') && document.getElementById('qk1').value) || '-',
+                    k2: (document.getElementById('qk2') && document.getElementById('qk2').value) || '-',
+                    k3: fs.qk3 || '-',
+                    k4: (document.getElementById('qk4') && document.getElementById('qk4').value) || '-',
+                    k5: fs.qk5 || '-',
+                    k6: fs.qk6 || '-',
+                    k7: fs.qk7 || '-',
+                    k8: fs.qk8 || '-',
+                    k9: fs.qk9 || '-',
+
+                    a1: fs.qa1 || '-',
+                    a2: fs.qa2 || '-',
+                    a3: fs.qa3 || '-',
+                    a4: fs.qa4 || '-',
+                    a5: fs.qa5 || '-',
+
+                    b1: fs.qb1 || '-',
+                    b2: fs.qb2 || '-',
+                    b3: fs.qb3 || '-',
+                    b4: fs.qb4 || '-',
+                    b5: fs.qb5 || '-',
+                    b6: fs.qb6 || '-',
+                    b7: fs.qb7 || '-',
+                    b8: fs.qb8 || '-',
+
+                    qc1: fs.qc1 || '-',
+                    qc2: Array.isArray(fs.qc2) ? fs.qc2.join(';') : (fs.qc2 || '-'),
+                    qc3: fs.qc3 || '-',
+                    qc4: Array.isArray(fs.qc4) ? fs.qc4.join(';') : (fs.qc4 || '-'),
+
+                    additionalNotes: document.getElementById('additionalNotes').value || '-'
+                };
+
+                allRecords.push(record);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(allRecords));
+                localStorage.setItem(STORAGE_ID_KEY, currentRecordId + 1);
+                currentRecordId++;
+
+                const popup = document.getElementById('successPopup');
+                popup.classList.add('show');
+                setTimeout(() => popup.classList.remove('show'), 2000);
+
+                updateUI();
+                // reset secondary form
+                document.querySelectorAll('.option-btn[data-field^="q"]').forEach(b => b.classList.remove('selected'));
+                ['q0_code','q0_age','qk1','qk2','qk4'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+                document.querySelectorAll('input[name="qc2"], input[name="qc4"]').forEach(cb => cb.checked = false);
+                formData = {};
+                return; // already handled
             }
             
             formData.additionalNotes = document.getElementById('additionalNotes').value || '-';
@@ -1012,6 +1266,7 @@
                 showLoginOverlay(false);
             }
 
+            setupCheckboxHandlers();
             loadFromStorage();
         });
     </script>

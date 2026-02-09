@@ -9,6 +9,7 @@
         body { font-family: 'Segoe UI', 'IRANSans', Tahoma, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height:100vh; padding:20px; direction:rtl; }
         .container { max-width:1100px;margin:0 auto;background:white;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; text-align:center; }
+        .header-subtitle { display:none !important; }
         .form-container { padding: 20px; }
         .section { margin-bottom:15px;padding:15px;background:#f9f9f9;border-radius:10px; }
         .question-label { display:block;margin-bottom:8px;font-weight:600; }
@@ -17,6 +18,25 @@
         .btn { padding:12px 18px;border-radius:8px;border:none; cursor:pointer }
         #loginOverlay { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:flex; align-items:center; justify-content:center; z-index:2000; }
         #loginOverlay .box { background:white;padding:24px;border-radius:12px;min-width:320px;direction:rtl;text-align:right; }
+
+        /* hide helper/banner classes per request */
+        .info-message,
+        .notes-section,
+        .app-hint,
+        .local-mode-badge,
+        .app-banner,
+        .local-mode {
+            display: none !important;
+        }
+
+        /* option buttons (radio-like look) */
+        .options-grid { display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); }
+        .option-btn { padding:12px 14px; border-radius:8px; border:2px solid #ddd; background:white; cursor:pointer; font-weight:600; }
+        .option-btn.selected { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color:white; border-color: #667eea; }
+
+        .btn-submit { background:#4caf50;color:white }
+        .btn-download { background:#ff9800;color:white }
+        .btn-reset { background:#f5f5f5;color:#333 }
     </style>
 </head>
 <body>
@@ -34,36 +54,256 @@
 
     <div class="container">
         <div class="header">
-            <h1>📋 پرسشنامه پزشکی</h1>
+            <h1>پرسشنامه پزشکی</h1>
             <p class="header-subtitle">سیستم ثبت اطلاعات</p>
         </div>
 
         <div class="form-container">
-            <div class="section">
-                <label class="question-label">مرکز بالینی</label>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <select id="centerSelect" style="flex:1;padding:10px;border-radius:8px;border:2px solid #ddd;"></select>
-                    <input id="newCenterInput" placeholder="مرکز جدید" style="padding:10px;border-radius:8px;border:2px solid #ddd;min-width:160px;">
-                    <button id="addCenterBtn" class="btn" style="background:#4caf50;color:white;">افزودن</button>
+            <form id="mainForm" class="form-container">
+                <!-- Section 0: Identification -->
+                <div class="section" id="section-0">
+                    <h2>Section 0 — اطلاعات شناسایی</h2>
+                    <label class="question-label">کد شناسایی <span class="question-code">Q0</span></label>
+                    <input type="text" id="q0_code" placeholder="کد شناسایی" required>
+                    <label class="question-label">سن <span class="question-code">Q0_AGE</span></label>
+                    <input type="number" id="q0_age" min="1" max="120" placeholder="سن" required>
                 </div>
-            </div>
 
-            <!-- Inserted questionnaire fields (first sections) -->
-            <!-- Section 0: اطلاعات شناسایی -->
-            <div class="section">
-                <h2 style="margin-bottom:10px">اطلاعات شناسایی</h2>
-                <label class="question-label">کد شناسایی</label>
-                <input type="text" id="q0_code" placeholder="کد شناسایی را وارد کنید" required>
-                <label class="question-label">سن</label>
-                <input type="number" id="q0_age" min="1" max="120" placeholder="سن را وارد کنید" required>
-            </div>
+                <!-- Section 1 -->
+                <div class="section" id="section-1">
+                    <h2>Section 1</h2>
+                    <label class="question-label">سوال 1 <span class="question-code">Q1</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="q1" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="q1" data-value="2">2</button>
+                    </div>
 
-            <!-- (rest of questionnaire omitted for brevity in UI; original full questionnaire will be stored similarly) -->
+                    <label class="question-label">سوال 2 <span class="question-code">Q2</span></label>
+                    <div class="options-grid" style="grid-template-columns:repeat(5,1fr);">
+                        <button type="button" class="option-btn" data-field="q2" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="3">3</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="4">4</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="5">5</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="6">6</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="7">7</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="8">8</button>
+                        <button type="button" class="option-btn" data-field="q2" data-value="9">9</button>
+                    </div>
+                </div>
 
-            <div class="actions">
-                <button id="submitBtn" class="btn" style="background:#4caf50;color:white;">💾 ذخیره و بعدی</button>
-                <a href="index.html" class="btn" style="background:#e0e0e0;color:#333;padding:12px 18px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;">بازگشت</a>
-            </div>
+                <!-- Section K -->
+                <div class="section" id="section-k">
+                    <h2>Section K</h2>
+                    <label class="question-label">K1 <span class="question-code">QK1</span></label>
+                    <input type="text" id="qk1" placeholder="...">
+
+                    <label class="question-label">K2 <span class="question-code">QK2</span></label>
+                    <input type="text" id="qk2" placeholder="...">
+
+                    <label class="question-label">K3 <span class="question-code">QK3</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk3" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk3" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K4 <span class="question-code">QK4</span></label>
+                    <input type="text" id="qk4" placeholder="...">
+
+                    <label class="question-label">K5 <span class="question-code">QK5</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk5" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk5" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K6 <span class="question-code">QK6</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk6" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk6" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K7 <span class="question-code">QK7</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk7" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk7" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K8 <span class="question-code">QK8</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk8" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk8" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">K9 <span class="question-code">QK9</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qk9" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qk9" data-value="2">2</button>
+                    </div>
+                </div>
+
+                <!-- Section A -->
+                <div class="section" id="section-a">
+                    <h2>Section A</h2>
+                    <label class="question-label">A1 <span class="question-code">QA1</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa1" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa1" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa1" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A2 <span class="question-code">QA2</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa2" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa2" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa2" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A3 <span class="question-code">QA3</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa3" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa3" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa3" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A4 <span class="question-code">QA4</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa4" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa4" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa4" data-value="3">3</button>
+                    </div>
+                    <label class="question-label">A5 <span class="question-code">QA5</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qa5" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qa5" data-value="2">2</button>
+                        <button type="button" class="option-btn" data-field="qa5" data-value="3">3</button>
+                    </div>
+                </div>
+
+                <!-- Section B -->
+                <div class="section" id="section-b">
+                    <h2>Section B</h2>
+                    <!-- B1..B8 each 1..5 -->
+                    <script>/* placeholder to keep HTML tidy */</script>
+                    <div>
+                        <label class="question-label">B1 <span class="question-code">QB1</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb1" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb1" data-value="5">5</button>
+                        </div>
+                        <!-- Repeat similar for B2..B8 -->
+                        <label class="question-label">B2 <span class="question-code">QB2</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb2" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb2" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B3 <span class="question-code">QB3</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb3" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb3" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B4 <span class="question-code">QB4</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb4" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb4" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B5 <span class="question-code">QB5</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb5" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb5" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B6 <span class="question-code">QB6</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb6" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb6" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B7 <span class="question-code">QB7</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb7" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb7" data-value="5">5</button>
+                        </div>
+                        <label class="question-label">B8 <span class="question-code">QB8</span></label>
+                        <div class="options-grid">
+                            <button type="button" class="option-btn" data-field="qb8" data-value="1">1</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="2">2</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="3">3</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="4">4</button>
+                            <button type="button" class="option-btn" data-field="qb8" data-value="5">5</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section C -->
+                <div class="section" id="section-c">
+                    <h2>Section C</h2>
+                    <label class="question-label">سوال 1 <span class="question-code">QC1</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qc1" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qc1" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">سوال 2 — چند انتخابی <span class="question-code">QC2</span></label>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <label><input type="checkbox" name="qc2" value="1"> 1</label>
+                        <label><input type="checkbox" name="qc2" value="2"> 2</label>
+                        <label><input type="checkbox" name="qc2" value="3"> 3</label>
+                        <label><input type="checkbox" name="qc2" value="4"> 4</label>
+                        <label><input type="checkbox" name="qc2" value="5"> 5</label>
+                        <label><input type="checkbox" name="qc2" value="6"> 6</label>
+                        <label><input type="checkbox" name="qc2" value="7"> 7</label>
+                        <label><input type="checkbox" name="qc2" value="8"> 8</label>
+                        <label><input type="checkbox" name="qc2" value="9"> 9</label>
+                        <label><input type="checkbox" name="qc2" value="10"> 10</label>
+                        <label><input type="checkbox" name="qc2" value="11"> 11</label>
+                        <label><input type="checkbox" name="qc2" value="12"> 12</label>
+                    </div>
+
+                    <label class="question-label">سوال 3 <span class="question-code">QC3</span></label>
+                    <div class="options-grid">
+                        <button type="button" class="option-btn" data-field="qc3" data-value="1">1</button>
+                        <button type="button" class="option-btn" data-field="qc3" data-value="2">2</button>
+                    </div>
+
+                    <label class="question-label">سوال 4 — چند انتخابی <span class="question-code">QC4</span></label>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+                        <label><input type="checkbox" name="qc4" value="1"> 1</label>
+                        <label><input type="checkbox" name="qc4" value="2"> 2</label>
+                        <label><input type="checkbox" name="qc4" value="3"> 3</label>
+                        <label><input type="checkbox" name="qc4" value="4"> 4</label>
+                        <label><input type="checkbox" name="qc4" value="5"> 5</label>
+                        <label><input type="checkbox" name="qc4" value="6"> 6</label>
+                        <label><input type="checkbox" name="qc4" value="7"> 7</label>
+                        <label><input type="checkbox" name="qc4" value="8"> 8</label>
+                        <label><input type="checkbox" name="qc4" value="9"> 9</label>
+                        <label><input type="checkbox" name="qc4" value="10"> 10</label>
+                        <label><input type="checkbox" name="qc4" value="11"> 11</label>
+                        <label><input type="checkbox" name="qc4" value="12"> 12</label>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="submitBtn" type="button" class="btn btn-submit">💾 ذخیره و بعدی</button>
+                    <button id="downloadBtn" type="button" class="btn btn-download">⬇️ دانلود TSV</button>
+                    <a href="index.html" class="btn btn-reset">بازگشت</a>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -84,38 +324,18 @@
         }
         document.getElementById('loginBtn').addEventListener('click', doLogin);
 
-        // Center management
-        function loadCenters() {
-            const raw = localStorage.getItem('clinical_centers');
-            let centers = [];
-            if (raw) {
-                try { centers = JSON.parse(raw); } catch (e) { centers = []; }
-            }
-            if (!centers || centers.length === 0) {
-                centers = ['مرکز امیرکلا', 'مرکز امام ساری'];
-                localStorage.setItem('clinical_centers', JSON.stringify(centers));
-            }
-            return centers;
-        }
-        function renderCenterOptions() {
-            const sel = document.getElementById('centerSelect'); sel.innerHTML = '';
-            loadCenters().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
-            const saved = localStorage.getItem('selected_center'); if (saved) sel.value = saved;
-        }
-        document.getElementById('addCenterBtn').addEventListener('click', function(){ const v = document.getElementById('newCenterInput').value.trim(); if (!v) return alert('نام مرکز جدید را وارد کنید'); const centers = loadCenters(); if (!centers.includes(v)) { centers.push(v); localStorage.setItem('clinical_centers', JSON.stringify(centers)); } document.getElementById('newCenterInput').value=''; renderCenterOptions(); });
-        document.getElementById('centerSelect').addEventListener('change', function(){ localStorage.setItem('selected_center', this.value); });
-
         // Storage keys for secondary questionnaire
         const STORAGE_KEY = 'medical_form_records_secondary';
         const STORAGE_ID_KEY = 'medical_form_id_secondary';
 
         let allRecords = [];
         let currentRecordId = 1;
+        let formState = {}; // holds radio selections
 
         function loadFromStorage() {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
-                allRecords = JSON.parse(stored);
+                allRecords = JSON.parse(stored) || [];
                 currentRecordId = parseInt(localStorage.getItem(STORAGE_ID_KEY)) || (allRecords.length + 1);
                 updateUI();
             }
@@ -126,25 +346,140 @@
             const cur = document.getElementById('currentRecordId'); if (cur) cur.textContent = currentRecordId;
         }
 
-        document.getElementById('submitBtn').addEventListener('click', () => {
-            const code = document.getElementById('q0_code').value.trim() || '-';
-            const age = document.getElementById('q0_age').value || '-';
-            const center = document.getElementById('centerSelect').value || '-';
+        // Setup option (radio-like) buttons
+        function setupOptionButtons() {
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const field = btn.getAttribute('data-field');
+                    const value = btn.getAttribute('data-value');
+                    if (!field) return;
+                    // single-select behavior: remove selected from others with same field
+                    document.querySelectorAll(`.option-btn[data-field="${field}"]`).forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    formState[field] = value;
+                });
+            });
+        }
 
-            const record = { ID: currentRecordId, timestamp: new Date().toLocaleString('fa-IR'), code, age, center };
+        // Setup checkboxes (multi-select) for qc2 and qc4
+        function setupCheckboxHandlers() {
+            ['qc2','qc4'].forEach(name => {
+                const inputs = Array.from(document.querySelectorAll(`input[name="${name}"]`));
+                if (!inputs.length) return;
+                const update = () => {
+                    const vals = inputs.filter(i => i.checked).map(i => i.value);
+                    formState[name] = vals;
+                };
+                inputs.forEach(i => i.addEventListener('change', update));
+                update();
+            });
+        }
+
+        function readValue(id) {
+            const el = document.getElementById(id);
+            return el ? (el.value || '-') : '-';
+        }
+
+        function buildRecordFromForm() {
+            const formData = formState || {};
+            return {
+                ID: currentRecordId,
+                timestamp: new Date().toLocaleString('fa-IR'),
+                code: readValue('q0_code').trim() || '-',
+                age: readValue('q0_age') || '-',
+
+                q1: formData.q1 || '-',
+                q2: formData.q2 || '-',
+
+                k1: readValue('qk1') || '-',
+                k2: readValue('qk2') || '-',
+                k3: formData.qk3 || '-',
+                k4: readValue('qk4') || '-',
+                k5: formData.qk5 || '-',
+                k6: formData.qk6 || '-',
+                k7: formData.qk7 || '-',
+                k8: formData.qk8 || '-',
+                k9: formData.qk9 || '-',
+
+                a1: formData.qa1 || '-',
+                a2: formData.qa2 || '-',
+                a3: formData.qa3 || '-',
+                a4: formData.qa4 || '-',
+                a5: formData.qa5 || '-',
+
+                b1: formData.qb1 || '-',
+                b2: formData.qb2 || '-',
+                b3: formData.qb3 || '-',
+                b4: formData.qb4 || '-',
+                b5: formData.qb5 || '-',
+                b6: formData.qb6 || '-',
+                b7: formData.qb7 || '-',
+                b8: formData.qb8 || '-',
+
+                qc1: formData.qc1 || '-',
+                qc2: Array.isArray(formData.qc2) ? formData.qc2.join(';') : '-',
+                qc3: formData.qc3 || '-',
+                qc4: Array.isArray(formData.qc4) ? formData.qc4.join(';') : '-',
+            };
+        }
+
+        // Submit handler
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            const record = buildRecordFromForm();
             allRecords.push(record);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(allRecords));
-            localStorage.setItem(STORAGE_ID_KEY, currentRecordId + 1);
+            localStorage.setItem(STORAGE_ID_KEY, (currentRecordId + 1).toString());
             currentRecordId++;
             updateUI();
-            alert('ذخیره شد');
-            document.getElementById('q0_code').focus();
+            // clear form state but keep inputs like center if any
             document.getElementById('q0_code').value = '';
             document.getElementById('q0_age').value = '';
+            // reset option buttons
+            document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            // reset checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            formState = {};
+            alert('ذخیره شد');
+            document.getElementById('q0_code').focus();
+        });
+
+        // Download TSV
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const headers = [
+                'ID','timestamp','code','age',
+                'Q1','Q2',
+                'QK1','QK2','QK3','QK4','QK5','QK6','QK7','QK8','QK9',
+                'QA1','QA2','QA3','QA4','QA5',
+                'QB1','QB2','QB3','QB4','QB5','QB6','QB7','QB8',
+                'QC1','QC2','QC3','QC4'
+            ];
+            const rows = [headers.join('\t')];
+            allRecords.forEach(r => {
+                const row = [
+                    r.ID, r.timestamp, r.code, r.age,
+                    r.q1, r.q2,
+                    r.k1, r.k2, r.k3, r.k4, r.k5, r.k6, r.k7, r.k8, r.k9,
+                    r.a1, r.a2, r.a3, r.a4, r.a5,
+                    r.b1, r.b2, r.b3, r.b4, r.b5, r.b6, r.b7, r.b8,
+                    r.qc1, r.qc2, r.qc3, r.qc4
+                ];
+                rows.push(row.join('\t'));
+            });
+            const tsv = rows.join('\n');
+            const blob = new Blob([tsv], { type: 'text/tab-separated-values;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `secondary_records_${new Date().toISOString().slice(0,10)}.tsv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
         });
 
         window.addEventListener('DOMContentLoaded', () => {
-            renderCenterOptions();
+            setupOptionButtons();
+            setupCheckboxHandlers();
             loadFromStorage();
             const loggedIn = sessionStorage.getItem('loggedIn_secondary'); if (!loggedIn) showLoginOverlay(true); else showLoginOverlay(false);
         });
